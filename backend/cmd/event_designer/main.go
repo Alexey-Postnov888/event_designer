@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 
 	db "github.com/Alexy-Postnov888/event_designer/backend/internal/db/generated"
 	"github.com/Alexy-Postnov888/event_designer/backend/internal/handlers"
@@ -11,7 +12,12 @@ import (
 )
 
 func main() {
-	dbConn, err := sql.Open("pgx", "postgresql://postgres:111@localhost:5432/event_designer?sslmode=disable")
+	dbURL := os.Getenv("DB_URL")
+	if dbURL == "" {
+		log.Fatal("DB_URL environment variable is required")
+	}
+
+	dbConn, err := sql.Open("pgx", dbURL)
 	if err != nil {
 		log.Fatal("Failed to open connection to the database:", err)
 	}

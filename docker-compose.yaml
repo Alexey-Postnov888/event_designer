@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: event_designer_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/internal/db/migrations:/docker-entrypoint-initdb.d
+
+  app:
+    build: ./backend
+    container_name: event_designer_app
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: "postgresql://postgres:111@db:5432/event_designer?sslmode=disable"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

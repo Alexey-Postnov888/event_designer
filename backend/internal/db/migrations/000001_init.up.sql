@@ -27,3 +27,14 @@ CREATE TABLE verification_codes (
     code TEXT NOT NULL,
     expires_at TIMESTAMPTZ NOT NULL
 );
+
+
+-- Добавляем тестовые данные
+INSERT INTO users (email, password, role) VALUES
+('admin@example.com', 'admin123', 'admin');
+
+INSERT INTO events (id, name) VALUES
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Test Event');
+
+INSERT INTO event_allowed_emails (event_id, email) VALUES
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'admin@example.com');
