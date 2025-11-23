@@ -8,6 +8,7 @@ import (
 
 	db "github.com/Alexy-Postnov888/event_designer/backend/internal/db/generated"
 	"github.com/Alexy-Postnov888/event_designer/backend/internal/handlers"
+	middleware "github.com/Alexy-Postnov888/event_designer/backend/internal/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -35,6 +36,9 @@ func main() {
 	mux.HandleFunc("POST /auth/login", authHandler.Login)
 	mux.HandleFunc("POST /auth/request-code", authHandler.RequestCode)
 	mux.HandleFunc("POST /auth/verify-code", authHandler.VerifyCode)
+
+	mux.HandleFunc("POST /admin/events", middleware.AdminOnlyMiddleware(authHandler.CreateEvent))
+	mux.HandleFunc("POST /admin/events/{event_id}/allowed-emails", middleware.AdminOnlyMiddleware(authHandler.AddAllowedEmail))
 
 	server := &http.Server{
 		Addr:    ":8080",

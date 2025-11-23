@@ -15,3 +15,12 @@ SELECT code, expires_at FROM verification_codes WHERE email = $1;
 
 -- name: DeleteVerificationCode :exec
 DELETE FROM verification_codes WHERE email = $1;
+
+-- name: CreateEvent :exec
+INSERT INTO events (id, name, description, starts_at, ends_at) VALUES ($1, $2, $3, $4, $5);
+
+-- name: AddAllowedEmail :exec
+INSERT INTO event_allowed_emails (event_id, email) VALUES ($1, $2) ON CONFLICT (event_id, email) DO NOTHING;
+
+-- name: GetEventByID :one
+SELECT id, name, description, starts_at, ends_at FROM events WHERE id = $1;

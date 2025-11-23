@@ -1,0 +1,102 @@
+.create-event-modal {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  padding-left: 60px;
+  padding-right: 60px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.create-event-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  margin-top: 36px;
+}
+
+.create-event-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+  color: var(--black);
+}
+
+.create-event-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 14px;
+  height: 14px;
+
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.create-event-close-btn img {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+/* Вкладки */
+.create-event-tabs {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  margin-bottom: 32px;
+  justify-content: flex-start;
+}
+
+.create-event-tab {
+  width: 208px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h5);
+  font-weight: var(--font-weight-h5);
+  color: var(--black);
+}
+
+.tab-line {
+  width: 100%;
+  height: 1px;
+  margin-top: 20px;
+
+  background-color: var(--devider);
+  border-radius: 999px;
+}
+
+.create-event-tab--active {
+  font-weight: 500;
+}
+
+.create-event-tab--active .tab-line {
+  background-color: var(--black);
+}
+
+/* Контент вкладки */
+.create-event-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Нижняя кнопка */
+.create-event-footer {
+  margin-top: 32px;
+}
+
+.create-event-next-btn {
+  width: 100%;
+}

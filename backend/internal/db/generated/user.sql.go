@@ -13,6 +13,43 @@ import (
 	"github.com/google/uuid"
 )
 
+const addAllowedEmail = `-- name: AddAllowedEmail :exec
+INSERT INTO event_allowed_emails (event_id, email) VALUES ($1, $2) ON CONFLICT (event_id, email) DO NOTHING
+`
+
+type AddAllowedEmailParams struct {
+	EventID uuid.UUID `json:"event_id"`
+	Email   string    `json:"email"`
+}
+
+func (q *Queries) AddAllowedEmail(ctx context.Context, arg AddAllowedEmailParams) error {
+	_, err := q.db.ExecContext(ctx, addAllowedEmail, arg.EventID, arg.Email)
+	return err
+}
+
+const createEvent = `-- name: CreateEvent :exec
+INSERT INTO events (id, name, description, starts_at, ends_at) VALUES ($1, $2, $3, $4, $5)
+`
+
+type CreateEventParams struct {
+	ID          uuid.UUID      `json:"id"`
+	Name        string         `json:"name"`
+	Description sql.NullString `json:"description"`
+	StartsAt    sql.NullTime   `json:"starts_at"`
+	EndsAt      sql.NullTime   `json:"ends_at"`
+}
+
+func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error {
+	_, err := q.db.ExecContext(ctx, createEvent,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+		arg.StartsAt,
+		arg.EndsAt,
+	)
+	return err
+}
+
 const createObserver = `-- name: CreateObserver :one
 INSERT INTO users (email, role) VALUES ($1, 'observer') RETURNING id, email, role, name, password, type_of_activity
 `
@@ -47,6 +84,23 @@ DELETE FROM verification_codes WHERE email = $1
 func (q *Queries) DeleteVerificationCode(ctx context.Context, email string) error {
 	_, err := q.db.ExecContext(ctx, deleteVerificationCode, email)
 	return err
+}
+
+const getEventByID = `-- name: GetEventByID :one
+SELECT id, name, description, starts_at, ends_at FROM events WHERE id = $1
+`
+
+func (q *Queries) GetEventByID(ctx context.Context, id uuid.UUID) (Event, error) {
+	row := q.db.QueryRowContext(ctx, getEventByID, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.StartsAt,
+		&i.EndsAt,
+	)
+	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
@@ -93,10 +147,7 @@ func (q *Queries) GetVerificationCode(ctx context.Context, email string) (GetVer
 }
 
 const isEmailAllowedForEvent = `-- name: IsEmailAllowedForEvent :one
-SELECT EXISTS (
-    SELECT 1 FROM event_allowed_emails
-    WHERE event_id = $1 AND email = $2
-)
+SELECT EXISTS (SELECT 1 FROM event_allowed_emails WHERE event_id = $1 AND email = $2)
 `
 
 type IsEmailAllowedForEventParams struct {

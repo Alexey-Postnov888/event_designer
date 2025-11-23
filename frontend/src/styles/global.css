@@ -1,0 +1,238 @@
+:root {
+  --white: #ffffff;
+  --grey: #f6f7f8;
+  --devider: #e2e3e4;
+  --txt: #949495;
+  --black: #333333;
+  --yellow: #ffdd2d;
+  --blue: #336fee;
+  --blue-low: #a8c1f8;
+
+  /* Шрифты */
+  --font-heading: "Tinkoff Sans", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-text: "Neue Haas Unica W1G", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --font-size-h1: 44px;
+  --font-weight-h1: 700;
+
+  --font-size-h2: 36px;
+  --font-weight-h2: 700;
+
+  --font-size-h3: 28px;
+  --font-weight-h3: 500;
+
+  --font-size-h4: 24px;
+  --font-weight-h4: 500;
+
+  --font-size-h5: 18px;
+  --font-weight-h5: 400;
+
+  --font-size-text: 15px;
+  --font-weight-text: 400;
+}
+
+@font-face {
+  font-family: "Tinkoff Sans";
+  src:
+    url("../assets/fonts/TinkoffSans-Bold.woff2") format("woff2"),
+    url("../assets/fonts/TinkoffSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tinkoff Sans";
+  src:
+    url("../assets/fonts/TinkoffSans-Medium.woff2") format("woff2"),
+    url("../assets/fonts/TinkoffSans-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tinkoff Sans";
+  src:
+    url("../assets/fonts/TinkoffSans-Regular.woff2") format("woff2"),
+    url("../assets/fonts/TinkoffSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neue Haas Unica W1G";
+  src: url("../assets/fonts/neuehaasunicaw1g-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  font-weight: var(--font-weight-text);
+  color: var(--txt);
+  background-color: var(--grey);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-heading);
+  color: var(--black);
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-h1);
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+  line-height: 1.3;
+}
+
+h4 {
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-h4);
+  line-height: 1.3;
+}
+
+h5 {
+  font-size: var(--font-size-h5);
+  font-weight: var(--font-weight-h5);
+  line-height: 1.4;
+}
+
+/* Основной текст */
+p,
+.text-body {
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  font-weight: var(--font-weight-text);
+  line-height: 1.4;
+  color: var(--txt);
+}
+
+/* Вторичный текст */
+.text-muted {
+  color: var(--txt);
+}
+
+/* Кнопки */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 8px;
+
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  font-weight: var(--font-weight-text);
+  color: var(--black);
+
+  padding: 0 16px;
+  height: 56px;
+
+  cursor: pointer;
+  background: transparent;
+
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Жёлтая основная кнопка */
+.btn-primary {
+  background-color: var(--yellow);
+}
+
+.btn-primary:hover {
+  background-color: #EBC919;
+}
+
+/* Сетка */
+.container {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 28px;
+}
+
+/* Прокрутка */
+*::-webkit-scrollbar {
+  width: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--devider);
+  border-radius: 9999px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--devider) transparent;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html,
+body {
+  background-color: var(--white);
+}
+
+.app-main {
+  background-color: var(--grey);
+}

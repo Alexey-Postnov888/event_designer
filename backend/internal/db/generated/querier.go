@@ -6,11 +6,16 @@ package db
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
+	AddAllowedEmail(ctx context.Context, arg AddAllowedEmailParams) error
+	CreateEvent(ctx context.Context, arg CreateEventParams) error
 	CreateObserver(ctx context.Context, email string) (CreateObserverRow, error)
 	DeleteVerificationCode(ctx context.Context, email string) error
+	GetEventByID(ctx context.Context, id uuid.UUID) (Event, error)
 	GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error)
 	GetVerificationCode(ctx context.Context, email string) (GetVerificationCodeRow, error)
 	IsEmailAllowedForEvent(ctx context.Context, arg IsEmailAllowedForEventParams) (bool, error)

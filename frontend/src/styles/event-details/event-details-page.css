@@ -1,0 +1,18 @@
+.event-details-page {
+  padding-top: 76px;
+  padding-bottom: 76px;
+}
+
+.event-details-title {
+  margin-bottom: 48px;
+}
+
+.event-details-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+}
+
+.event-details-content {
+  flex: 1;
+}
