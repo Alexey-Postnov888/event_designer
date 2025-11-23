@@ -12,8 +12,11 @@ import (
 )
 
 type Event struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
+	ID          uuid.UUID      `json:"id"`
+	Name        string         `json:"name"`
+	Description sql.NullString `json:"description"`
+	StartsAt    sql.NullTime   `json:"starts_at"`
+	EndsAt      sql.NullTime   `json:"ends_at"`
 }
 
 type EventAllowedEmail struct {

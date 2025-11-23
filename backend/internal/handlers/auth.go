@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"net/http"
 	"time"
 
+	auth "github.com/Alexy-Postnov888/event_designer/backend/internal/auth"
 	db "github.com/Alexy-Postnov888/event_designer/backend/internal/db/generated"
 	"github.com/Alexy-Postnov888/event_designer/backend/internal/models"
 	"github.com/google/uuid"
@@ -54,6 +57,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := auth.GenerateToken(int(userRow.ID), userRow.Email, userRow.Role, auth.AdminTokenExpiry)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
 	resp := models.AuthResponse{
 		User: &models.UserResponse{
 			ID:             int(userRow.ID),
@@ -62,7 +71,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			TypeOfActivity: userRow.TypeOfActivity.String,
 			Role:           userRow.Role,
 		},
-		Token:   "auth-token-" + userRow.Email,
+		Token:   token,
 		Message: "Login successful",
 	}
 
@@ -108,7 +117,12 @@ func (h *AuthHandler) RequestCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	code := "787878"
+	code, err := generateSecureRandomCode()
+	if err != nil {
+		http.Error(w, "Failed to generate code", http.StatusInternalServerError)
+		return
+	}
+
 	expiresAt := time.Now().Add(10 * time.Minute)
 	err = h.db.SaveVerificationCode(context.Background(), db.SaveVerificationCodeParams{
 		Email:     req.Email,
@@ -123,10 +137,26 @@ func (h *AuthHandler) RequestCode(w http.ResponseWriter, r *http.Request) {
 	response := map[string]string{
 		"message": "Code sent to email",
 		"email":   req.Email,
+		"code":    code,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func generateSecureRandomCode() (string, error) {
+	const digits = "0123456789"
+	const codeLength = 6
+
+	code := make([]byte, codeLength)
+	for i := range code {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(digits))))
+		if err != nil {
+			return "", err
+		}
+		code[i] = digits[num.Int64()]
+	}
+	return string(code), nil
 }
 
 // Потверждаем код доступа и предоставляем аутентификацию для участника мероприятия
@@ -198,16 +228,120 @@ func (h *AuthHandler) VerifyCode(w http.ResponseWriter, r *http.Request) {
 
 	h.db.DeleteVerificationCode(context.Background(), req.Email)
 
+	token, err := auth.GenerateToken(int(userRow.ID), userRow.Email, userRow.Role, auth.EventTokenExpiry)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
 	resp := models.AuthResponse{
 		User: &models.UserResponse{
 			ID:    int(userRow.ID),
 			Email: userRow.Email,
 			Role:  userRow.Role,
 		},
-		Token:   "event-token-" + userRow.Email,
+		Token:   token,
 		Message: fmt.Sprintf("Access to event granted as %s", userRow.Role),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
+}
+
+type CreateEventRequest struct {
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	StartsAt    time.Time `json:"starts_at"`
+	EndsAt      time.Time `json:"ends_at"`
+}
+
+// создаем мероприятие
+func (h *AuthHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
+	var req CreateEventRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if req.Name == "" {
+		http.Error(w, "Name is required", http.StatusBadRequest)
+		return
+	}
+
+	eventID := uuid.New()
+
+	err := h.db.CreateEvent(r.Context(), db.CreateEventParams{
+		ID:   eventID,
+		Name: req.Name,
+		Description: sql.NullString{
+			String: req.Description,
+			Valid:  req.Description != "",
+		},
+		StartsAt: sql.NullTime{
+			Time:  req.StartsAt,
+			Valid: true,
+		},
+		EndsAt: sql.NullTime{
+			Time:  req.EndsAt,
+			Valid: true,
+		},
+	})
+
+	if err != nil {
+		http.Error(w, "Failed to create event", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":   eventID.String(),
+		"name": req.Name,
+	})
+}
+
+type AddAllowedEmailRequest struct {
+	Email string `json:"email"`
+}
+
+// добавляем юзеров в список разрешенных на мероприятие
+func (h *AuthHandler) AddAllowedEmail(w http.ResponseWriter, r *http.Request) {
+	eventIDStr := r.PathValue("event_id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		http.Error(w, "Invalid event ID", http.StatusBadRequest)
+		return
+	}
+
+	var req AddAllowedEmailRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if req.Email == "" {
+		http.Error(w, "Email is required", http.StatusBadRequest)
+		return
+	}
+
+	_, err = h.db.GetEventByID(r.Context(), eventID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Event not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	err = h.db.AddAllowedEmail(r.Context(), db.AddAllowedEmailParams{
+		EventID: eventID,
+		Email:   req.Email,
+	})
+	if err != nil {
+		http.Error(w, "Failed to add allowed email", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

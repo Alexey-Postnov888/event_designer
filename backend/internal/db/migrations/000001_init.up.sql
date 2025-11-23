@@ -11,7 +11,10 @@ CREATE TABLE users (
 -- Таблица мероприятий
 CREATE TABLE events (
     id UUID PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    description TEXT,
+    starts_at TIMESTAMPTZ,
+    ends_at TIMESTAMPTZ
 );
 
 -- учасьники мероприятия, которые имеют доступ к событию
@@ -30,11 +33,4 @@ CREATE TABLE verification_codes (
 
 
 -- Добавляем тестовые данные
-INSERT INTO users (email, password, role) VALUES
-('admin@example.com', 'admin123', 'admin');
-
-INSERT INTO events (id, name) VALUES
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Test Event');
-
-INSERT INTO event_allowed_emails (event_id, email) VALUES
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'admin@example.com');
+INSERT INTO users (email, password, role) VALUES ('admin@example.com', 'admin123', 'admin');
