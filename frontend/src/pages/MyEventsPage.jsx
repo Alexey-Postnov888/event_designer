@@ -1,29 +1,41 @@
-// src/pages/MyEventsPage.jsx
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import EventCard from "../components/ui/EventCard";
-import { mockEvents } from "../mock/events";
 
-export default function MyEventsPage() {
+import EventCard from "../components/ui/EventCard";
+import CreateEventModal from "../components/create-event/CreateEventModal";
+
+export default function MyEventsPage({ events }) {
   const navigate = useNavigate();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const handleOpenCreate = () => {
+    setIsCreateOpen(true);
+  };
+
+  const handleCloseCreate = () => {
+    setIsCreateOpen(false);
+  };
 
   return (
     <div className="events-page">
       <div className="events-header">
         <h1 className="events-title">Мои мероприятия</h1>
 
-        <button className="btn btn-primary events-create-button">
+        <button
+          className="btn btn-primary events-create-button"
+          type="button"
+          onClick={handleOpenCreate}
+        >
           Создать новое мероприятие
         </button>
       </div>
 
-      {/* Сетка */}
       <div className="events-grid">
-        {mockEvents.map((event, index) => (
+        {events.map((event, index) => (
           <EventCard
             key={event.id}
             title={event.title}
             status={event.status}
-            // только первая карточка сделана
             onClick={
               index === 0
                 ? () => navigate(`/events/${event.id}`)
@@ -32,6 +44,12 @@ export default function MyEventsPage() {
           />
         ))}
       </div>
+          
+      <CreateEventModal
+        isOpen={isCreateOpen}
+        onClose={handleCloseCreate}
+      />
+
     </div>
   );
 }

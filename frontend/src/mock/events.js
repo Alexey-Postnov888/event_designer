@@ -23,7 +23,7 @@ export const mockEvents = [
   },
   {
     id: 3,
-    status: "draft",
+    status: "hidden",
     title: "Коронованный герцог графства связывает нас с нашим прошлым",
   },
   {

@@ -1,6 +1,5 @@
 import StatusPublishedIcon from "../../assets/icons/status-published.svg?react";
 import StatusHiddenIcon from "../../assets/icons/status-hidden.svg?react";
-import StatusDraftIcon from "../../assets/icons/status-draft.svg?react";
 import BlankImage from "../../assets/placeholders/blank_image.svg?react";
 
 const STATUS_MAP = {
@@ -11,10 +10,6 @@ const STATUS_MAP = {
   hidden: {
     label: "Скрыто",
     Icon: StatusHiddenIcon,
-  },
-  draft: {
-    label: "Черновик",
-    Icon: StatusDraftIcon,
   },
 };
 
