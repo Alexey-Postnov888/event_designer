@@ -1,0 +1,161 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Хедер */
+.app-header {
+  background-color: var(--white);
+}
+
+.app-header__inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+/* Логотип */
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 70px;
+}
+
+.header-logo__svg {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+/* Навигация */
+.app-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+}
+
+.app-header__nav-item {
+  color: var(--black);
+  cursor: pointer;
+   transition: color 0.25s ease;
+}
+
+.app-header__nav-item:hover {
+  color: var(--txt);
+}
+
+/* Поиск */
+.app-header__search {
+  margin-left: 70px;
+  flex: 1;
+  width: 552px;
+  flex: 0 0 auto;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--devider);
+  background-color: var(--white);
+  padding: 10px 16px;
+  height: 40px;
+  transition: border-color 0.2s ease;
+}
+
+.header-search:hover {
+  border-color: var(--txt);
+}
+
+.header-search:focus-within {
+  border-color: var(--txt);
+}
+
+.header-search__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: var(--font-text);
+  font-size: 13px;
+  color: var(--black);
+}
+
+.header-search__input::placeholder {
+  font-family: var(--font-text);
+  font-size: 13px;
+  color: var(--txt);
+}
+
+.header-search__icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--txt);
+  transition: color 0.25s ease;
+}
+
+.header-search:hover .header-search__icon {
+  color: var(--black);
+}
+
+.header-search:focus-within .header-search__icon {
+  color: var(--black);
+}
+
+/* Вход */
+.app-header__auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.app-header__auth-text {
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  color: var(--txt);
+}
+
+.app-header__auth-text:hover {
+  color: var(--black);
+  cursor: pointer;
+}
+
+.app-header__avatar-icon {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+/* Не ативность */
+.disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 1;
+}
+
+/* Основной контент */
+.app-main {
+  flex: 1;
+  padding: 24px 0 32px;
+}
+
+/* Футер */
+
+.app-footer {
+  background-color: var(--white);
+}
+
+.app-footer__inner {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  color: var(--txt);
+}
