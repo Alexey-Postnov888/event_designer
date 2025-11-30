@@ -1,13 +1,13 @@
 package ru.alexeypostnov.eventdesigner.domain
 
-import ru.alexeypostnov.eventdesigner.data.Repository
+import ru.alexeypostnov.eventdesigner.data.EventInfoRepository
 import javax.inject.Inject
 
 interface PostAuthUseCase {
 }
 
 class PostAuthUseCaseImpl @Inject constructor(
-    private val repository: Repository
+    private val repository: EventInfoRepository
 ): PostAuthUseCase {
     // реализация метода интерфейса
 }

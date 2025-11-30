@@ -1,6 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:cardCornerRadius="20dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:strokeWidth="0dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/event_info_chips_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/event_info_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="@tools:sample/date/hhmm"
+                android:textSize="15sp"
+                app:chipStrokeWidth="0dp"
+                app:chipCornerRadius="20dp"
+                app:chipIcon="@drawable/schedule_24dp"
+                app:chipIconTint="@color/blueAccent"
+                app:chipBackgroundColor="@color/mainBackground"
+                android:textColor="@color/black" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/event_info_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="@tools:sample/date/ddmmyy"
+                android:textSize="15sp"
+                app:chipStrokeWidth="0dp"
+                app:chipCornerRadius="20dp"
+                app:chipIcon="@drawable/calendar"
+                app:chipBackgroundColor="@color/mainBackground"
+                android:textColor="@color/black" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/event_info_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="г. Челябинск, ул Братьев Кашириных 129"
+                android:textSize="15sp"
+                app:chipStrokeWidth="0dp"
+                app:chipCornerRadius="20dp"
+                app:chipIcon="@drawable/calendar"
+                app:chipBackgroundColor="@color/mainBackground"
+                android:textColor="@color/black" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <View
+            android:id="@+id/event_info_separator"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:background="@drawable/separator"
+            app:layout_constraintTop_toBottomOf="@id/event_info_chips_group"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="10dp"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/event_info_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/event_info_separator"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="@tools:sample/lorem/random"
+            tools:maxLines="10"
+            android:textSize="15sp"
+            android:textColor="@color/black"
+            android:layout_marginTop="10dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/event_info_description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:text="Скачать для офлайн-просмотра"
+            android:textColor="@color/black"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/mainBackground"
+            app:cornerRadius="12dp"
+            android:layout_marginTop="10dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

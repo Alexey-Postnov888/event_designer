@@ -1,19 +1,22 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-import "../styles/event-details.css";
+
+import "../styles/event-details/event-details-page.css";
+
 import { mockEvents } from "../mock/events";
-import StatusPublishedIcon from "../assets/icons/status-published.svg?react";
-import IconTime from "../assets/icons/icon-time.svg?react";
-import IconCalendar from "../assets/icons/icon-calendar.svg?react";
-import IconLocation from "../assets/icons/icon-location.svg?react";
-import IconDownload from "../assets/icons/icon-download.svg?react";
+import Sidebar from "../components/event-details/Sidebar";
+import OverviewTab from "../components/event-details/tabs/OverviewTab";
+import MapTab from "../components/event-details/tabs/MapTab";
+import TimelineTab from "../components/event-details/tabs/TimelineTab";
+import ParticipantsTab from "../components/event-details/tabs/ParticipantsTab";
 
 export default function EventDetailsPage() {
   const { id } = useParams();
   const event = mockEvents.find((item) => item.id.toString() === id);
 
-  // Активный пункт меню
   const [activeTab, setActiveTab] = useState("overview");
+
+  const [status, setStatus] = useState(event?.status ?? "hidden");
 
   if (!event) {
     return (
@@ -23,124 +26,34 @@ export default function EventDetailsPage() {
     );
   }
 
+  const handleToggleStatus = () => {
+    const nextStatus = status === "published" ? "hidden" : "published";
+    setStatus(nextStatus);
+
+    if (event.id === 1) {
+      const first = mockEvents.find((e) => e.id === 1);
+      if (first) {
+        first.status = nextStatus;
+      }
+    }
+  };
+
   return (
     <div className="event-details-page">
-      {/* Заголовок страницы */}
       <h1 className="event-details-title">{event.title}</h1>
 
-      {/* ОБЁРТКА ДЛЯ ЛЕВОГО И ПРАВОГО БЛОКА */}
       <div className="event-details-layout">
-        {/* Левая карточка-меню */}
-        <aside className="event-details-sidebar">
-          <div className="event-details-sidebar-card">
-            {/* Статус */}
-            <div className="event-details-status">
-              <div className="event-status">
-                <StatusPublishedIcon className="event-status__icon" />
-                <span className="event-status__text">Опубликовано</span>
-              </div>
-            </div>
+        <Sidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          status={status}
+          onToggleStatus={handleToggleStatus}
+        />
 
-            {/* Меню */}
-            <nav className="event-details-menu">
-              <button
-                type="button"
-                className={"event-details-menu-item" + (activeTab === "overview"
-                    ? " event-details-menu-item--active" : "")}
-                onClick={() => setActiveTab("overview")}>
-                Общая информация
-              </button>
-
-              <button
-                type="button"
-                className={"event-details-menu-item" + (activeTab === "map"
-                    ? " event-details-menu-item--active" : "")}
-                onClick={() => setActiveTab("map")}>
-                Карта мероприятия
-              </button>
-
-              <button
-                type="button"
-                className={
-                  "event-details-menu-item" + (activeTab === "timeline"
-                    ? " event-details-menu-item--active" : "")}
-                onClick={() => setActiveTab("timeline")}>
-                Таймлайн
-              </button>
-              
-              <button
-                type="button"
-                className={
-                  "event-details-menu-item" + (activeTab === "participants"
-                    ? " event-details-menu-item--active" : "")}
-                onClick={() => setActiveTab("participants")}>
-                Участники
-              </button>
-            </nav>
-
-            {/* Кнопки снизу */}
-            <div className="event-details-sidebar-footer">
-              <div className="event-details-sidebar-actions">
-                <button type="button" className="btn btn--edit">
-                  Редактировать
-                </button>
-
-                <button type="button" className="btn btn--delete">
-                  Удалить
-                </button>
-              </div>
-
-              <button
-                type="button"
-                className="btn btn-primary event-details-publish-btn"
-              >
-                Опубликовать
-              </button>
-            </div>
-          </div>
-        </aside>
-
-        {/* ПРАВАЯ КАРТОЧКА "Общая информация" */}
-        {activeTab === "overview" && (
-          <section className="event-details-content">
-            <div className="event-details-content-card">
-              {/* Тело карточки */}
-              <div className="event-details-body">
-                <div className="event-details-chips">
-                  <div className="event-details-chips-left">
-                    <div className="event-chip">
-                      <IconTime className="event-chip__icon" />
-                      <span>{event.time}</span>
-                    </div>
-                    <div className="event-chip">
-                      <IconCalendar className="event-chip__icon" />
-                      <span>{event.date}</span>
-                    </div>
-                  </div>
-
-                  <div className="event-details-chips-right">
-                    <div className="event-chip">
-                      <IconLocation className="event-chip__icon" />
-                      <span>{event.location}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="event-details-divider" />
-
-                <p className="event-details-description">
-                  {event.description?.trim()}
-                </p>
-              </div>
-
-              {/* Кнопка скачивания */}
-              <button className="btn event-details-download-btn">
-                <IconDownload className="event-details-download-icon" />
-                Скачать мероприятие для офлайн-просмотра
-              </button>
-            </div>
-          </section>
-        )}
+        {activeTab === "overview" && <OverviewTab event={event} />}
+        {activeTab === "map" && <MapTab event={event} />}
+        {activeTab === "timeline" && <TimelineTab event={event} />}
+        {activeTab === "participants" && <ParticipantsTab event={event} />}
       </div>
     </div>
   );

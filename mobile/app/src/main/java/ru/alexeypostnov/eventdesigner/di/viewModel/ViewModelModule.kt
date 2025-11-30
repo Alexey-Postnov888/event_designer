@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
-import ru.alexeypostnov.eventdesigner.presenter.MainViewModel
+import ru.alexeypostnov.eventdesigner.presenter.EventInfoViewModel
 
 @Module
 interface ViewModelModule {
@@ -16,8 +16,8 @@ interface ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(MainViewModel::class)
-    fun bindMainViewModel(
-        viewModel: MainViewModel
+    @ViewModelKey(EventInfoViewModel::class)
+    fun bindEventInfoViewModel(
+        viewModel: EventInfoViewModel
     ): ViewModel
 }

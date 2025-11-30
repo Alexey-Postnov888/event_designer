@@ -15,5 +15,18 @@
     <fragment
         android:id="@+id/enterCodeFragment"
         android:name="ru.alexeypostnov.eventdesigner.presenter.EnterCodeFragment"
-        android:label="EnterCodeFragment" />
+        android:label="EnterCodeFragment" >
+        <action
+            android:id="@+id/action_enterCodeFragment_to_eventDetailsFragment"
+            app:destination="@id/eventDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/eventDetailsFragment"
+        android:name="ru.alexeypostnov.eventdesigner.presenter.EventDetailsFragment"
+        android:label="EventDetailsFragment" >
+        <argument
+            android:name="eventId"
+            app:argType="long" />
+        <deepLink app:uri="eventdesigner://event?id={eventId}" />
+    </fragment>
 </navigation>

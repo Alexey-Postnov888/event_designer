@@ -11,6 +11,7 @@
 
 .app-header__inner {
   height: 64px;
+  width: 100%;
   display: flex;
   align-items: center;
 }
@@ -145,13 +146,13 @@
 }
 
 /* Футер */
-
 .app-footer {
   background-color: var(--white);
 }
 
 .app-footer__inner {
-  height: 56px;
+  height: 64px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -204,3 +204,35 @@ p,
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: 28px;
 }
+
+/* Прокрутка */
+*::-webkit-scrollbar {
+  width: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--devider);
+  border-radius: 9999px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--devider) transparent;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html,
+body {
+  background-color: var(--white);
+}
+
+.app-main {
+  background-color: var(--grey);
+}
