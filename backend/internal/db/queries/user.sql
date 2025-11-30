@@ -24,3 +24,16 @@ INSERT INTO event_allowed_emails (event_id, email) VALUES ($1, $2) ON CONFLICT (
 
 -- name: GetEventByID :one
 SELECT id, name, description, starts_at, ends_at FROM events WHERE id = $1;
+
+-- name: ListEvents :many
+SELECT id, name, description, starts_at, ends_at FROM events ORDER BY starts_at DESC;
+
+-- name: UpdateEvent :exec
+UPDATE events
+SET name = $2, description = $3, starts_at = $4, ends_at = $5 WHERE id = $1;
+
+-- name: DeleteEvent :exec
+DELETE FROM events WHERE id = $1;
+
+-- name: DeleteAllowedEmail :exec
+DELETE FROM event_allowed_emails WHERE event_id = $1 AND email = $2;

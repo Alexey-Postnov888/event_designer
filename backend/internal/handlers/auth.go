@@ -345,3 +345,180 @@ func (h *AuthHandler) AddAllowedEmail(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+// Получаем мероприятие по его ID
+func (h *AuthHandler) GetEventByID(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	eventIDStr := r.PathValue("event_id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		http.Error(w, "Invalid event ID format", http.StatusBadRequest)
+		return
+	}
+
+	event, err := h.db.GetEventByID(r.Context(), eventID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Event not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(event)
+}
+
+type UpdateEventRequest struct {
+	Name        *string    `json:"name,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	StartsAt    *time.Time `json:"starts_at,omitempty"`
+	EndsAt      *time.Time `json:"ends_at,omitempty"`
+}
+
+// Обновляем информацию о мероприятии
+func (h *AuthHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	eventIDStr := r.PathValue("event_id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		http.Error(w, "Invalid event ID format", http.StatusBadRequest)
+		return
+	}
+
+	var req UpdateEventRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	currentEvent, err := h.db.GetEventByID(r.Context(), eventID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Event not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	params := db.UpdateEventParams{
+		ID:          eventID,
+		Name:        currentEvent.Name,
+		Description: currentEvent.Description,
+		StartsAt:    currentEvent.StartsAt,
+		EndsAt:      currentEvent.EndsAt,
+	}
+
+	if req.Name != nil {
+		params.Name = *req.Name
+	}
+	if req.Description != nil {
+		params.Description = sql.NullString{
+			String: *req.Description,
+			Valid:  *req.Description != "",
+		}
+	}
+	if req.StartsAt != nil {
+		params.StartsAt = sql.NullTime{Time: *req.StartsAt, Valid: true}
+	}
+	if req.EndsAt != nil {
+		params.EndsAt = sql.NullTime{Time: *req.EndsAt, Valid: true}
+	}
+
+	err = h.db.UpdateEvent(r.Context(), params)
+	if err != nil {
+		http.Error(w, "Failed to update event", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Event updated successfully"})
+}
+
+// Удаляем мероприятие
+func (h *AuthHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	eventIDStr := r.PathValue("event_id")
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		http.Error(w, "Invalid event ID format", http.StatusBadRequest)
+		return
+	}
+
+	err = h.db.DeleteEvent(r.Context(), eventID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Event not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Failed to delete event", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// Получаем список всех мероприятий
+func (h *AuthHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	events, err := h.db.ListEvents(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to retrieve events", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(events)
+}
+
+// Удаляем юзера из списка разрешенных на мероприятие
+func (h *AuthHandler) DeleteAllowedEmail(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	eventIDStr := r.PathValue("event_id")
+	emailStr := r.PathValue("email")
+
+	eventID, err := uuid.Parse(eventIDStr)
+	if err != nil {
+		http.Error(w, "Invalid event ID format", http.StatusBadRequest)
+		return
+	}
+
+	if emailStr == "" {
+		http.Error(w, "Email is required in path", http.StatusBadRequest)
+		return
+	}
+
+	err = h.db.DeleteAllowedEmail(r.Context(), db.DeleteAllowedEmailParams{
+		EventID: eventID,
+		Email:   emailStr,
+	})
+
+	if err != nil {
+		http.Error(w, "Failed to delete allowed email or email/event not found", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

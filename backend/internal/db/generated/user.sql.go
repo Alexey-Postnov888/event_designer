@@ -77,6 +77,29 @@ func (q *Queries) CreateObserver(ctx context.Context, email string) (CreateObser
 	return i, err
 }
 
+const deleteAllowedEmail = `-- name: DeleteAllowedEmail :exec
+DELETE FROM event_allowed_emails WHERE event_id = $1 AND email = $2
+`
+
+type DeleteAllowedEmailParams struct {
+	EventID uuid.UUID `json:"event_id"`
+	Email   string    `json:"email"`
+}
+
+func (q *Queries) DeleteAllowedEmail(ctx context.Context, arg DeleteAllowedEmailParams) error {
+	_, err := q.db.ExecContext(ctx, deleteAllowedEmail, arg.EventID, arg.Email)
+	return err
+}
+
+const deleteEvent = `-- name: DeleteEvent :exec
+DELETE FROM events WHERE id = $1
+`
+
+func (q *Queries) DeleteEvent(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteEvent, id)
+	return err
+}
+
 const deleteVerificationCode = `-- name: DeleteVerificationCode :exec
 DELETE FROM verification_codes WHERE email = $1
 `
@@ -162,6 +185,39 @@ func (q *Queries) IsEmailAllowedForEvent(ctx context.Context, arg IsEmailAllowed
 	return exists, err
 }
 
+const listEvents = `-- name: ListEvents :many
+SELECT id, name, description, starts_at, ends_at FROM events ORDER BY starts_at DESC
+`
+
+func (q *Queries) ListEvents(ctx context.Context) ([]Event, error) {
+	rows, err := q.db.QueryContext(ctx, listEvents)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Event
+	for rows.Next() {
+		var i Event
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.StartsAt,
+			&i.EndsAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const saveVerificationCode = `-- name: SaveVerificationCode :exec
 INSERT INTO verification_codes (email, code, expires_at) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET code = $2, expires_at = $3
 `
@@ -174,5 +230,29 @@ type SaveVerificationCodeParams struct {
 
 func (q *Queries) SaveVerificationCode(ctx context.Context, arg SaveVerificationCodeParams) error {
 	_, err := q.db.ExecContext(ctx, saveVerificationCode, arg.Email, arg.Code, arg.ExpiresAt)
+	return err
+}
+
+const updateEvent = `-- name: UpdateEvent :exec
+UPDATE events
+SET name = $2, description = $3, starts_at = $4, ends_at = $5 WHERE id = $1
+`
+
+type UpdateEventParams struct {
+	ID          uuid.UUID      `json:"id"`
+	Name        string         `json:"name"`
+	Description sql.NullString `json:"description"`
+	StartsAt    sql.NullTime   `json:"starts_at"`
+	EndsAt      sql.NullTime   `json:"ends_at"`
+}
+
+func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error {
+	_, err := q.db.ExecContext(ctx, updateEvent,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+		arg.StartsAt,
+		arg.EndsAt,
+	)
 	return err
 }

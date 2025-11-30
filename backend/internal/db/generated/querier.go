@@ -14,12 +14,16 @@ type Querier interface {
 	AddAllowedEmail(ctx context.Context, arg AddAllowedEmailParams) error
 	CreateEvent(ctx context.Context, arg CreateEventParams) error
 	CreateObserver(ctx context.Context, email string) (CreateObserverRow, error)
+	DeleteAllowedEmail(ctx context.Context, arg DeleteAllowedEmailParams) error
+	DeleteEvent(ctx context.Context, id uuid.UUID) error
 	DeleteVerificationCode(ctx context.Context, email string) error
 	GetEventByID(ctx context.Context, id uuid.UUID) (Event, error)
 	GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error)
 	GetVerificationCode(ctx context.Context, email string) (GetVerificationCodeRow, error)
 	IsEmailAllowedForEvent(ctx context.Context, arg IsEmailAllowedForEventParams) (bool, error)
+	ListEvents(ctx context.Context) ([]Event, error)
 	SaveVerificationCode(ctx context.Context, arg SaveVerificationCodeParams) error
+	UpdateEvent(ctx context.Context, arg UpdateEventParams) error
 }
 
 var _ Querier = (*Queries)(nil)
