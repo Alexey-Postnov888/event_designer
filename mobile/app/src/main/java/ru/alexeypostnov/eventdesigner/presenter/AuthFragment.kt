@@ -13,8 +13,8 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.sendCodeButton.setOnClickListener {
-            findNavController().navigate(R.id.action_authFragment_to_enterCodeFragment)
-        }
+//        binding.sendCodeButton.setOnClickListener {
+//            findNavController().navigate(R.id.action_authFragment_to_enterCodeFragment)
+//        }
     }
 }
