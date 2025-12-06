@@ -14,16 +14,26 @@ type Querier interface {
 	AddAllowedEmail(ctx context.Context, arg AddAllowedEmailParams) error
 	CreateEvent(ctx context.Context, arg CreateEventParams) error
 	CreateObserver(ctx context.Context, email string) (CreateObserverRow, error)
+	CreateOrUpdateEventMap(ctx context.Context, arg CreateOrUpdateEventMapParams) error
+	CreatePoint(ctx context.Context, arg CreatePointParams) error
 	DeleteAllowedEmail(ctx context.Context, arg DeleteAllowedEmailParams) error
 	DeleteEvent(ctx context.Context, id uuid.UUID) error
+	DeleteEventMap(ctx context.Context, eventID uuid.UUID) (string, error)
+	DeletePoint(ctx context.Context, id uuid.UUID) error
 	DeleteVerificationCode(ctx context.Context, email string) error
 	GetEventByID(ctx context.Context, id uuid.UUID) (Event, error)
+	GetEventMapDetails(ctx context.Context, eventID uuid.UUID) (GetEventMapDetailsRow, error)
+	GetPointByID(ctx context.Context, id uuid.UUID) (Point, error)
+	GetPointsByEvent(ctx context.Context, eventID uuid.UUID) ([]Point, error)
 	GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error)
 	GetVerificationCode(ctx context.Context, email string) (GetVerificationCodeRow, error)
 	IsEmailAllowedForEvent(ctx context.Context, arg IsEmailAllowedForEventParams) (bool, error)
-	ListEvents(ctx context.Context) ([]Event, error)
+	ListEventsByAdmin(ctx context.Context, creatorEmail string) ([]ListEventsByAdminRow, error)
+	ListEventsByObserver(ctx context.Context, email string) ([]ListEventsByObserverRow, error)
+	RemoveTimelineFromPoint(ctx context.Context, id uuid.UUID) error
 	SaveVerificationCode(ctx context.Context, arg SaveVerificationCodeParams) error
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) error
+	UpdatePoint(ctx context.Context, arg UpdatePointParams) error
 }
 
 var _ Querier = (*Queries)(nil)

@@ -12,16 +12,37 @@ import (
 )
 
 type Event struct {
-	ID          uuid.UUID      `json:"id"`
-	Name        string         `json:"name"`
-	Description sql.NullString `json:"description"`
-	StartsAt    sql.NullTime   `json:"starts_at"`
-	EndsAt      sql.NullTime   `json:"ends_at"`
+	ID           uuid.UUID      `json:"id"`
+	Name         string         `json:"name"`
+	Description  sql.NullString `json:"description"`
+	Address      sql.NullString `json:"address"`
+	StartsAt     sql.NullTime   `json:"starts_at"`
+	EndsAt       sql.NullTime   `json:"ends_at"`
+	CreatorEmail string         `json:"creator_email"`
 }
 
 type EventAllowedEmail struct {
 	EventID uuid.UUID `json:"event_id"`
 	Email   string    `json:"email"`
+}
+
+type EventMap struct {
+	EventID        uuid.UUID `json:"event_id"`
+	MapUrl         string    `json:"map_url"`
+	MapStoragePath string    `json:"map_storage_path"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+type Point struct {
+	ID                  uuid.UUID      `json:"id"`
+	EventID             uuid.UUID      `json:"event_id"`
+	X                   int32          `json:"x"`
+	Y                   int32          `json:"y"`
+	Title               string         `json:"title"`
+	TimelineDescription sql.NullString `json:"timeline_description"`
+	StartAt             sql.NullTime   `json:"start_at"`
+	EndAt               sql.NullTime   `json:"end_at"`
 }
 
 type User struct {

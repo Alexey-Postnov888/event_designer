@@ -1,0 +1,934 @@
+basePath: /
+definitions:
+  models.AllowedEmailRequest:
+    properties:
+      email:
+        description: Email для добавления/удаления
+        example: new.participant@example.com
+        type: string
+      event_id:
+        description: ID мероприятия
+        example: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+    type: object
+  models.AuthResponse:
+    properties:
+      message:
+        description: Сообщение о статусе авторизации
+        example: Authentication successful
+        type: string
+      token:
+        description: JWT токен для последующих запросов
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/models.UserResponse'
+        description: Детали пользователя
+    type: object
+  models.CreateEventRequest:
+    properties:
+      address:
+        description: Адрес проведения
+        example: Ул. Программистов, 15
+        type: string
+      description:
+        description: Описание мероприятия
+        example: Крупнейшее событие года в сфере технологий.
+        type: string
+      ends_at:
+        description: Время окончания мероприятия
+        example: "2025-12-01T18:00:00Z"
+        type: string
+      name:
+        description: Название мероприятия
+        example: Ежегодная конференция IT
+        type: string
+      starts_at:
+        description: Время начала мероприятия
+        example: "2025-12-01T10:00:00Z"
+        type: string
+    type: object
+  models.EventResponse:
+    properties:
+      address:
+        type: string
+      creator_email:
+        type: string
+      description:
+        type: string
+      ends_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      starts_at:
+        type: string
+    type: object
+  models.ListEventResponse:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      ends_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      starts_at:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        description: Email пользователя
+        example: admin@example.com
+        type: string
+      password:
+        description: Пароль пользователя
+        example: admin_hash_secure
+        type: string
+    type: object
+  models.MapResponse:
+    properties:
+      map_url:
+        description: Публичный URL карты мероприятия
+        example: http://localhost:8080/static/maps/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11_map.jpg
+        type: string
+    type: object
+  models.PointRequest:
+    properties:
+      end_at:
+        description: Время окончания события
+        example: "2025-12-01T10:00:00Z"
+        type: string
+      event_id:
+        description: ID мероприятия, к которому относится точка (обязательно)
+        example: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+      id:
+        description: ID точки (обязательно для обновления)
+        example: 11eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+      start_at:
+        description: Время начала события
+        example: "2025-12-01T09:00:00Z"
+        type: string
+      timeline_description:
+        description: |-
+          Поля Таймлайна
+          Описание события в таймлайне
+        example: Регистрация участников и утренний кофе.
+        type: string
+      title:
+        description: Заголовок точки (обязательно)
+        example: Стойка регистрации
+        type: string
+      x:
+        description: Координата X на карте (обязательно)
+        example: 50
+        type: integer
+      "y":
+        description: Координата Y на карте (обязательно)
+        example: 100
+        type: integer
+    type: object
+  models.PointResponse:
+    properties:
+      end_at:
+        description: Время окончания события
+        example: "2025-12-01T10:00:00Z"
+        type: string
+      event_id:
+        description: ID мероприятия, к которому относится точка
+        example: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+      id:
+        description: ID точки
+        example: 11eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+      start_at:
+        description: Время начала события
+        example: "2025-12-01T09:00:00Z"
+        type: string
+      timeline_description:
+        description: |-
+          Поля Таймлайна (поля могут быть NULLable в базе, поэтому используем указатели, если они не являются обязательными)
+          Описание события в таймлайне
+        example: Регистрация участников и утренний кофе.
+        type: string
+      title:
+        description: Заголовок точки
+        example: Стойка регистрации
+        type: string
+      x:
+        description: Координата X на карте
+        example: 50
+        type: integer
+      "y":
+        description: Координата Y на карте
+        example: 100
+        type: integer
+    type: object
+  models.RequestCodeRequest:
+    properties:
+      email:
+        description: Email пользователя, запрашивающего код
+        example: observer1@example.com
+        type: string
+      event_id:
+        description: ID мероприятия, к которому запрашивается доступ
+        example: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+    type: object
+  models.SimplePointRequest:
+    properties:
+      event_id:
+        description: ID мероприятия, к которому относится точка (обязательно)
+        example: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+      id:
+        description: ID точки (обязательно для обновления)
+        example: 44eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+      title:
+        description: Заголовок точки (обязательно)
+        example: Название
+        type: string
+      x:
+        description: Координата X на карте (обязательно)
+        example: 90
+        type: integer
+      "y":
+        description: Координата Y на карте (обязательно)
+        example: 150
+        type: integer
+    type: object
+  models.UpdateEventRequest:
+    properties:
+      address:
+        description: Новый адрес
+        example: Санкт-Петербург, Экспоцентр
+        type: string
+      description:
+        description: Новое описание мероприятия
+        example: Новое описание события.
+        type: string
+      ends_at:
+        description: Новое время окончания
+        example: "2025-12-01T19:00:00Z"
+        type: string
+      event_id:
+        description: ID мероприятия для обновления
+        example: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+      name:
+        description: Новое название мероприятия
+        example: Обновленное название конференции
+        type: string
+      starts_at:
+        description: Новое время начала
+        example: "2025-12-01T10:00:00Z"
+        type: string
+    type: object
+  models.UserResponse:
+    properties:
+      email:
+        description: Email пользователя
+        example: admin@example.com
+        type: string
+      id:
+        description: ID пользователя
+        example: 1
+        type: integer
+      name:
+        description: Имя пользователя
+        example: Главный Администратор
+        type: string
+      role:
+        description: Роль пользователя (например, "admin" или "observer")
+        example: admin
+        type: string
+      type_of_activity:
+        description: Тип деятельности
+        example: IT
+        type: string
+    type: object
+  models.VerifyCodeRequest:
+    properties:
+      code:
+        description: Одноразовый код, полученный по почте
+        example: "123456"
+        type: string
+      email:
+        description: Email пользователя
+        example: observer1@example.com
+        type: string
+      event_id:
+        description: ID мероприятия
+        example: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Сервис для управления событиями, картами и точками интереса.
+  title: Event Designer API
+  version: "1.0"
+paths:
+  /admin/events:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет поля мероприятия. Используется метод PATCH, можно передавать
+        только те поля, которые нужно изменить.
+      parameters:
+      - description: Поля для обновления мероприятия
+        in: body
+        name: update
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Мероприятие успешно обновлено
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON / Event ID required / Invalid event ID format
+          schema:
+            type: string
+        "404":
+          description: Event not found
+          schema:
+            type: string
+        "500":
+          description: Database error / Failed to update event
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить информацию о мероприятии
+      tags:
+      - Events
+    post:
+      consumes:
+      - application/json
+      description: Создает новое мероприятие. Доступно только администраторам.
+      parameters:
+      - description: Данные для создания мероприятия
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешное создание, возвращает ID и имя
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid JSON / Name is required
+          schema:
+            type: string
+        "500":
+          description: Authentication context missing / Failed to create event
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Создать мероприятие
+      tags:
+      - Events
+  /admin/events/{eventID}:
+    delete:
+      description: Удаляет мероприятие по его ID. Доступно только администраторам.
+      parameters:
+      - description: ID мероприятия (UUID)
+        in: path
+        name: eventID
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Мероприятие успешно удалено (No Content)
+        "400":
+          description: Invalid event ID format in URL
+          schema:
+            type: string
+        "404":
+          description: Event not found
+          schema:
+            type: string
+        "500":
+          description: Failed to delete event
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить мероприятие
+      tags:
+      - Events
+  /admin/events/{eventID}/map:
+    delete:
+      description: Удаляет карту мероприятия и соответствующий файл из хранилища.
+      parameters:
+      - description: ID мероприятия (UUID)
+        in: path
+        name: eventID
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Карта успешно удалена (No Content)
+        "400":
+          description: Invalid event ID format in URL
+          schema:
+            type: string
+        "404":
+          description: Event map not found.
+          schema:
+            type: string
+        "500":
+          description: Failed to delete event map
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить карту мероприятия
+      tags:
+      - Maps
+  /admin/events/{eventID}/points/{pointID}:
+    delete:
+      description: Удаляет простую точку или точку таймлайна по ее ID.
+      parameters:
+      - description: ID мероприятия (UUID)
+        in: path
+        name: eventID
+        required: true
+        type: string
+      - description: ID точки (UUID)
+        in: path
+        name: pointID
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Точка успешно удалена (No Content)
+        "400":
+          description: Invalid ID format in URL
+          schema:
+            type: string
+        "500":
+          description: Failed to delete point
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить точку
+      tags:
+      - Points
+  /admin/events/allowed-emails:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет email из списка разрешенных участников для данного мероприятия.
+      parameters:
+      - description: ID мероприятия и Email для удаления
+        in: body
+        name: allowedEmail
+        required: true
+        schema:
+          $ref: '#/definitions/models.AllowedEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Email успешно удален (No Content)
+        "400":
+          description: Invalid JSON / Required fields missing / Invalid event ID format
+          schema:
+            type: string
+        "500":
+          description: Failed to delete allowed email or email/event not found
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить разрешенный email
+      tags:
+      - Events
+    post:
+      consumes:
+      - application/json
+      description: Добавляет email в список разрешенных участников для данного мероприятия.
+      parameters:
+      - description: ID мероприятия и Email для добавления
+        in: body
+        name: allowedEmail
+        required: true
+        schema:
+          $ref: '#/definitions/models.AllowedEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Email успешно добавлен (No Content)
+        "400":
+          description: Invalid JSON / Required fields missing / Invalid event ID format
+          schema:
+            type: string
+        "404":
+          description: Event not found
+          schema:
+            type: string
+        "500":
+          description: Database error / Failed to add allowed email
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить разрешенный email
+      tags:
+      - Events
+  /admin/events/map:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Загружает новый файл карты или заменяет существующий для мероприятия.
+      parameters:
+      - description: ID мероприятия (UUID)
+        in: formData
+        name: event_id
+        required: true
+        type: string
+      - description: Файл карты (изображение)
+        in: formData
+        name: map_file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Карта успешно создана (StatusCreated)
+        "204":
+          description: Карта успешно обновлена (No Content)
+        "400":
+          description: Invalid event ID format / Missing form data
+          schema:
+            type: string
+        "500":
+          description: Failed to upload file / Failed to create/update event map in
+            DB
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Загрузить или обновить карту мероприятия
+      tags:
+      - Maps
+  /admin/events/points/simple:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет координаты и/или заголовок существующей простой точки.
+      parameters:
+      - description: ID точки и поля для обновления (ID required)
+        in: body
+        name: point
+        required: true
+        schema:
+          $ref: '#/definitions/models.SimplePointRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Точка успешно обновлена
+        "400":
+          description: Invalid request body / Point ID must be provided
+          schema:
+            type: string
+        "403":
+          description: 'Forbidden: Cannot update Timeline Point using Simple Point
+            endpoint / Cannot add timeline data'
+          schema:
+            type: string
+        "404":
+          description: Point not found
+          schema:
+            type: string
+        "500":
+          description: Failed to update simple point
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить простую точку
+      tags:
+      - Points
+    post:
+      consumes:
+      - application/json
+      description: Создает новую точку на карте (без привязки к таймлайну). Требуется
+        EventID, X, Y и Title.
+      parameters:
+      - description: Данные точки (X, Y, Title, EventID)
+        in: body
+        name: point
+        required: true
+        schema:
+          $ref: '#/definitions/models.SimplePointRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешное создание, возвращает ID
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body / Required fields missing
+          schema:
+            type: string
+        "403":
+          description: 'Forbidden: Cannot use timeline data'
+          schema:
+            type: string
+        "500":
+          description: Failed to create simple point
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Создать простую точку
+      tags:
+      - Points
+  /admin/events/points/timeline:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет существующую точку таймлайна. Требуется предоставление
+        всех полей таймлайна для обновления.
+      parameters:
+      - description: ID точки и полные данные таймлайна (ID, StartAt, EndAt, Description
+          required)
+        in: body
+        name: point
+        required: true
+        schema:
+          $ref: '#/definitions/models.PointRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Точка успешно обновлена
+        "400":
+          description: Invalid request body / Required fields missing
+          schema:
+            type: string
+        "403":
+          description: 'Forbidden: Cannot update Simple Point using Timeline Point
+            endpoint'
+          schema:
+            type: string
+        "404":
+          description: Point not found
+          schema:
+            type: string
+        "500":
+          description: Failed to update timeline point
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить точку таймлайна
+      tags:
+      - Points
+    post:
+      consumes:
+      - application/json
+      description: Создает новую точку на карте с привязкой к таймлайну (StartAt,
+        EndAt, Description). Требуются все поля.
+      parameters:
+      - description: Данные точки (EventID, X, Y, Title, StartAt, EndAt, TimelineDescription)
+        in: body
+        name: point
+        required: true
+        schema:
+          $ref: '#/definitions/models.PointRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешное создание, возвращает ID
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body / All timeline fields are required
+          schema:
+            type: string
+        "500":
+          description: Failed to create timeline point
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Создать точку таймлайна
+      tags:
+      - Points
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Обрабатывает вход администратора по почте и паролю. Возвращает
+        JWT-токен с ролью "admin".
+      parameters:
+      - description: Учетные данные администратора
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный вход, возвращает токен
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Invalid JSON
+          schema:
+            type: string
+        "401":
+          description: Invalid email or password / Only admins can log in with password
+          schema:
+            type: string
+        "500":
+          description: Database error / Failed to generate token
+          schema:
+            type: string
+      summary: Вход администратора
+      tags:
+      - Auth
+  /auth/request-code:
+    post:
+      consumes:
+      - application/json
+      description: Отправляет одноразовый код потверждения на email для входа на мероприятие.
+        Требуется, чтобы email был разрешен для EventID.
+      parameters:
+      - description: Event ID и Email участника
+        in: body
+        name: requestCode
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Код успешно сгенерирован и отправлен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid JSON / Required fields missing / Invalid event_id format
+          schema:
+            type: string
+        "403":
+          description: Email not allowed for this event
+          schema:
+            type: string
+        "500":
+          description: Database error / Failed to generate code / Failed to save code
+          schema:
+            type: string
+      summary: Запрос кода доступа
+      tags:
+      - Auth
+  /auth/verify-code:
+    post:
+      consumes:
+      - application/json
+      description: Потверждает код доступа, предоставленный по email. При успешной
+        проверке возвращает JWT-токен для доступа к ресурсам мероприятия. Если пользователь
+        не существует, он будет создан как "observer".
+      parameters:
+      - description: Event ID, Email и полученный код доступа
+        in: body
+        name: verifyCode
+        required: true
+        schema:
+          $ref: '#/definitions/models.VerifyCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешная аутентификация, возвращает токен
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Invalid JSON / Required fields missing / Invalid event_id format
+          schema:
+            type: string
+        "401":
+          description: Invalid or expired code
+          schema:
+            type: string
+        "403":
+          description: Email not allowed for this event
+          schema:
+            type: string
+        "500":
+          description: Database error / Failed to generate token
+          schema:
+            type: string
+      summary: Подтверждение кода и вход участника
+      tags:
+      - Auth
+  /events:
+    get:
+      description: Получает список мероприятий. Для администраторов - все созданные
+        ими мероприятия и мероприятия на которые они добавлены. Для участников - мероприятия,
+        на которые их email разрешен.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список мероприятий
+          schema:
+            items:
+              $ref: '#/definitions/models.ListEventResponse'
+            type: array
+        "500":
+          description: Authentication context missing / Failed to retrieve events
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получить список мероприятий
+      tags:
+      - Events
+  /events/{event_id}:
+    get:
+      description: Получает детальную информацию о мероприятии. Доступно создателю
+        мероприятия и участникам, чьи email разрешены.
+      parameters:
+      - description: ID мероприятия (UUID)
+        in: path
+        name: event_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Полная информация о мероприятии
+          schema:
+            $ref: '#/definitions/models.EventResponse'
+        "400":
+          description: Invalid event ID format
+          schema:
+            type: string
+        "403":
+          description: Access denied for this event
+          schema:
+            type: string
+        "404":
+          description: Event not found
+          schema:
+            type: string
+        "500":
+          description: Database error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получить мероприятие по ID
+      tags:
+      - Events
+  /events/{eventID}/map:
+    get:
+      description: Возвращает URL общедоступной карты мероприятия.
+      parameters:
+      - description: ID мероприятия (UUID)
+        in: path
+        name: eventID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: URL карты
+          schema:
+            $ref: '#/definitions/models.MapResponse'
+        "400":
+          description: Invalid event ID format in URL
+          schema:
+            type: string
+        "404":
+          description: Event map not found.
+          schema:
+            type: string
+        "500":
+          description: Failed to fetch event map
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получить карту мероприятия
+      tags:
+      - Maps
+  /events/{eventID}/points:
+    get:
+      description: Возвращает список всех простых точек и точек таймлайна для указанного
+        мероприятия.
+      parameters:
+      - description: ID мероприятия (UUID)
+        in: path
+        name: eventID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список точек
+          schema:
+            items:
+              $ref: '#/definitions/models.PointResponse'
+            type: array
+        "400":
+          description: Invalid event ID
+          schema:
+            type: string
+        "500":
+          description: Failed to fetch points
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получить все точки по ID мероприятия
+      tags:
+      - Points
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

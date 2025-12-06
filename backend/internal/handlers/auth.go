@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"mime/multipart"
 	"net/http"
 	"time"
 
@@ -16,15 +17,34 @@ import (
 	"github.com/google/uuid"
 )
 
+type StorageService interface {
+	Upload(ctx context.Context, file multipart.File, filename string) (publicURL string, storagePath string, err error)
+	Delete(ctx context.Context, storagePath string) error
+}
+
 type AuthHandler struct {
-	db db.Querier
+	db             db.Querier
+	StorageService StorageService
 }
 
-func NewAuthHandler(db db.Querier) *AuthHandler {
-	return &AuthHandler{db: db}
+func NewAuthHandler(dbQuerier db.Querier, storageService StorageService) *AuthHandler {
+	return &AuthHandler{
+		db:             dbQuerier,
+		StorageService: storageService,
+	}
 }
 
-// Обрабатываем вход администратора по почте и паролю
+// @Summary Вход администратора
+// @Description Обрабатывает вход администратора по почте и паролю. Возвращает JWT-токен с ролью "admin".
+// @Tags Auth
+// @Accept  json
+// @Produce  json
+// @Param   loginRequest body models.LoginRequest true "Учетные данные администратора"
+// @Success 200 {object} models.AuthResponse "Успешный вход, возвращает токен"
+// @Failure 400 {string} string "Invalid JSON"
+// @Failure 401 {string} string "Invalid email or password / Only admins can log in with password"
+// @Failure 500 {string} string "Database error / Failed to generate token"
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -79,28 +99,37 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-// Обрабатываем запрос на отправку кода потверждения для участии в мероприятии
+// @Summary Запрос кода доступа
+// @Description Отправляет одноразовый код потверждения на email для входа на мероприятие. Требуется, чтобы email был разрешен для EventID.
+// @Tags Auth
+// @Accept  json
+// @Produce  json
+// @Param   requestCode body models.RequestCodeRequest true "Event ID и Email участника"
+// @Success 200 {object} map[string]string "Код успешно сгенерирован и отправлен"
+// @Failure 400 {string} string "Invalid JSON / Required fields missing / Invalid event_id format"
+// @Failure 403 {string} string "Email not allowed for this event"
+// @Failure 500 {string} string "Database error / Failed to generate code / Failed to save code"
+// @Router /auth/request-code [post]
 func (h *AuthHandler) RequestCode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	eventIDStr := r.URL.Query().Get("event_id")
-	if eventIDStr == "" {
-		http.Error(w, "Event ID required", http.StatusBadRequest)
-		return
-	}
-
-	eventID, err := uuid.Parse(eventIDStr)
-	if err != nil {
-		http.Error(w, "Invalid event_id format (must be UUID)", http.StatusBadRequest)
-		return
-	}
-
 	var req models.RequestCodeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if req.EventID == "" {
+		http.Error(w, "Event ID required in body", http.StatusBadRequest)
+		return
+	}
+
+	eventID, err := uuid.Parse(req.EventID)
+	if err != nil {
+		http.Error(w, "Invalid event_id format (must be UUID)", http.StatusBadRequest)
 		return
 	}
 
@@ -159,28 +188,38 @@ func generateSecureRandomCode() (string, error) {
 	return string(code), nil
 }
 
-// Потверждаем код доступа и предоставляем аутентификацию для участника мероприятия
+// @Summary Подтверждение кода и вход участника
+// @Description Потверждает код доступа, предоставленный по email. При успешной проверке возвращает JWT-токен для доступа к ресурсам мероприятия. Если пользователь не существует, он будет создан как "observer".
+// @Tags Auth
+// @Accept  json
+// @Produce  json
+// @Param   verifyCode body models.VerifyCodeRequest true "Event ID, Email и полученный код доступа"
+// @Success 200 {object} models.AuthResponse "Успешная аутентификация, возвращает токен"
+// @Failure 400 {string} string "Invalid JSON / Required fields missing / Invalid event_id format"
+// @Failure 401 {string} string "Invalid or expired code"
+// @Failure 403 {string} string "Email not allowed for this event"
+// @Failure 500 {string} string "Database error / Failed to generate token"
+// @Router /auth/verify-code [post]
 func (h *AuthHandler) VerifyCode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	eventIDStr := r.URL.Query().Get("event_id")
-	if eventIDStr == "" {
-		http.Error(w, "Event ID required", http.StatusBadRequest)
-		return
-	}
-
-	eventID, err := uuid.Parse(eventIDStr)
-	if err != nil {
-		http.Error(w, "Invalid event_id format", http.StatusBadRequest)
-		return
-	}
-
 	var req models.VerifyCodeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if req.EventID == "" {
+		http.Error(w, "Event ID required in body", http.StatusBadRequest)
+		return
+	}
+
+	eventID, err := uuid.Parse(req.EventID)
+	if err != nil {
+		http.Error(w, "Invalid event_id format", http.StatusBadRequest)
 		return
 	}
 
@@ -246,279 +285,4 @@ func (h *AuthHandler) VerifyCode(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
-}
-
-type CreateEventRequest struct {
-	Name        string    `json:"name"`
-	Description string    `json:"description,omitempty"`
-	StartsAt    time.Time `json:"starts_at"`
-	EndsAt      time.Time `json:"ends_at"`
-}
-
-// создаем мероприятие
-func (h *AuthHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
-	var req CreateEventRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-
-	if req.Name == "" {
-		http.Error(w, "Name is required", http.StatusBadRequest)
-		return
-	}
-
-	eventID := uuid.New()
-
-	err := h.db.CreateEvent(r.Context(), db.CreateEventParams{
-		ID:   eventID,
-		Name: req.Name,
-		Description: sql.NullString{
-			String: req.Description,
-			Valid:  req.Description != "",
-		},
-		StartsAt: sql.NullTime{
-			Time:  req.StartsAt,
-			Valid: true,
-		},
-		EndsAt: sql.NullTime{
-			Time:  req.EndsAt,
-			Valid: true,
-		},
-	})
-
-	if err != nil {
-		http.Error(w, "Failed to create event", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"id":   eventID.String(),
-		"name": req.Name,
-	})
-}
-
-type AddAllowedEmailRequest struct {
-	Email string `json:"email"`
-}
-
-// добавляем юзеров в список разрешенных на мероприятие
-func (h *AuthHandler) AddAllowedEmail(w http.ResponseWriter, r *http.Request) {
-	eventIDStr := r.PathValue("event_id")
-	eventID, err := uuid.Parse(eventIDStr)
-	if err != nil {
-		http.Error(w, "Invalid event ID", http.StatusBadRequest)
-		return
-	}
-
-	var req AddAllowedEmailRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-
-	if req.Email == "" {
-		http.Error(w, "Email is required", http.StatusBadRequest)
-		return
-	}
-
-	_, err = h.db.GetEventByID(r.Context(), eventID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Event not found", http.StatusNotFound)
-		} else {
-			http.Error(w, "Database error", http.StatusInternalServerError)
-		}
-		return
-	}
-
-	err = h.db.AddAllowedEmail(r.Context(), db.AddAllowedEmailParams{
-		EventID: eventID,
-		Email:   req.Email,
-	})
-	if err != nil {
-		http.Error(w, "Failed to add allowed email", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
-}
-
-// Получаем мероприятие по его ID
-func (h *AuthHandler) GetEventByID(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	eventIDStr := r.PathValue("event_id")
-	eventID, err := uuid.Parse(eventIDStr)
-	if err != nil {
-		http.Error(w, "Invalid event ID format", http.StatusBadRequest)
-		return
-	}
-
-	event, err := h.db.GetEventByID(r.Context(), eventID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Event not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(event)
-}
-
-type UpdateEventRequest struct {
-	Name        *string    `json:"name,omitempty"`
-	Description *string    `json:"description,omitempty"`
-	StartsAt    *time.Time `json:"starts_at,omitempty"`
-	EndsAt      *time.Time `json:"ends_at,omitempty"`
-}
-
-// Обновляем информацию о мероприятии
-func (h *AuthHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPatch {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	eventIDStr := r.PathValue("event_id")
-	eventID, err := uuid.Parse(eventIDStr)
-	if err != nil {
-		http.Error(w, "Invalid event ID format", http.StatusBadRequest)
-		return
-	}
-
-	var req UpdateEventRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-
-	currentEvent, err := h.db.GetEventByID(r.Context(), eventID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Event not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
-	}
-
-	params := db.UpdateEventParams{
-		ID:          eventID,
-		Name:        currentEvent.Name,
-		Description: currentEvent.Description,
-		StartsAt:    currentEvent.StartsAt,
-		EndsAt:      currentEvent.EndsAt,
-	}
-
-	if req.Name != nil {
-		params.Name = *req.Name
-	}
-	if req.Description != nil {
-		params.Description = sql.NullString{
-			String: *req.Description,
-			Valid:  *req.Description != "",
-		}
-	}
-	if req.StartsAt != nil {
-		params.StartsAt = sql.NullTime{Time: *req.StartsAt, Valid: true}
-	}
-	if req.EndsAt != nil {
-		params.EndsAt = sql.NullTime{Time: *req.EndsAt, Valid: true}
-	}
-
-	err = h.db.UpdateEvent(r.Context(), params)
-	if err != nil {
-		http.Error(w, "Failed to update event", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Event updated successfully"})
-}
-
-// Удаляем мероприятие
-func (h *AuthHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	eventIDStr := r.PathValue("event_id")
-	eventID, err := uuid.Parse(eventIDStr)
-	if err != nil {
-		http.Error(w, "Invalid event ID format", http.StatusBadRequest)
-		return
-	}
-
-	err = h.db.DeleteEvent(r.Context(), eventID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Event not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, "Failed to delete event", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
-}
-
-// Получаем список всех мероприятий
-func (h *AuthHandler) ListEvents(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	events, err := h.db.ListEvents(r.Context())
-	if err != nil {
-		http.Error(w, "Failed to retrieve events", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(events)
-}
-
-// Удаляем юзера из списка разрешенных на мероприятие
-func (h *AuthHandler) DeleteAllowedEmail(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	eventIDStr := r.PathValue("event_id")
-	emailStr := r.PathValue("email")
-
-	eventID, err := uuid.Parse(eventIDStr)
-	if err != nil {
-		http.Error(w, "Invalid event ID format", http.StatusBadRequest)
-		return
-	}
-
-	if emailStr == "" {
-		http.Error(w, "Email is required in path", http.StatusBadRequest)
-		return
-	}
-
-	err = h.db.DeleteAllowedEmail(r.Context(), db.DeleteAllowedEmailParams{
-		EventID: eventID,
-		Email:   emailStr,
-	})
-
-	if err != nil {
-		http.Error(w, "Failed to delete allowed email or email/event not found", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
 }

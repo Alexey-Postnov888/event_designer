@@ -1,0 +1,17 @@
+-- name: GetUserByEmail :one
+SELECT id, email, role, name, password, type_of_activity FROM users WHERE email = $1;
+
+-- name: CreateObserver :one
+INSERT INTO users (email, role) VALUES ($1, 'observer') RETURNING id, email, role, name, password, type_of_activity;
+
+-- name: IsEmailAllowedForEvent :one
+SELECT EXISTS (SELECT 1 FROM event_allowed_emails WHERE event_id = $1 AND email = $2);
+
+-- name: SaveVerificationCode :exec
+INSERT INTO verification_codes (email, code, expires_at) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET code = $2, expires_at = $3;
+
+-- name: GetVerificationCode :one
+SELECT code, expires_at FROM verification_codes WHERE email = $1;
+
+-- name: DeleteVerificationCode :exec
+DELETE FROM verification_codes WHERE email = $1;

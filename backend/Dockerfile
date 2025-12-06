@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24 AS app_builder
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=builder /app/event_designer .
+COPY --from=app_builder /app/event_designer .
 
 EXPOSE 8080
 
