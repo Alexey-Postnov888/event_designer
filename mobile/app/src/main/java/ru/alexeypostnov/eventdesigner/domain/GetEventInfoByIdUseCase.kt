@@ -1,18 +1,17 @@
 package ru.alexeypostnov.eventdesigner.domain
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 import ru.alexeypostnov.eventdesigner.data.EventInfoRepository
-import ru.alexeypostnov.eventdesigner.data.model.EventInfoEntity
+import ru.alexeypostnov.eventdesigner.data.model.EventInfo
+import java.util.UUID
 import javax.inject.Inject
 
 interface GetEventInfoByIdUseCase {
-    suspend operator fun invoke(eventId: Long): Flow<EventInfoEntity?>
+    suspend operator fun invoke(eventId: UUID): EventInfo?
 }
 
 class GetEventInfoByIdUseCaseImpl @Inject constructor(
     private val repository: EventInfoRepository
 ): GetEventInfoByIdUseCase {
-    override suspend fun invoke(eventId: Long): Flow<EventInfoEntity?> =
+    override suspend fun invoke(eventId: UUID): EventInfo? =
         repository.getEventInfoById(eventId)
 }

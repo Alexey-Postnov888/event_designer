@@ -6,6 +6,7 @@ import dagger.Component
 import dagger.Module
 import ru.alexeypostnov.eventdesigner.di.viewModel.ViewModelModule
 import ru.alexeypostnov.eventdesigner.presenter.EventInfoFragment
+import ru.alexeypostnov.eventdesigner.presenter.EventMapFragment
 import javax.inject.Singleton
 
 @Component(
@@ -16,6 +17,7 @@ import javax.inject.Singleton
 @Singleton
 abstract class AppComponent {
     abstract fun inject(fragment: EventInfoFragment)
+    abstract fun inject(fragment: EventMapFragment)
 
     @Component.Builder
     interface Builder {

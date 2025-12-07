@@ -26,8 +26,11 @@
         android:label="EventDetailsFragment" >
         <argument
             android:name="eventId"
-            app:argType="long"
-            android:defaultValue="0L"/>
-        <deepLink app:uri="eventdesigner://event?id={eventId}" />
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
+        <deepLink
+            app:uri="eventdesigner://event?id={eventId}"
+            android:autoVerify="true" />
     </fragment>
 </navigation>

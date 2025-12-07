@@ -16,6 +16,8 @@ import ru.alexeypostnov.eventdesigner.domain.GetAllEventsInfoUseCase
 import ru.alexeypostnov.eventdesigner.domain.GetAllEventsInfoUseCaseImpl
 import ru.alexeypostnov.eventdesigner.domain.GetEventInfoByIdUseCase
 import ru.alexeypostnov.eventdesigner.domain.GetEventInfoByIdUseCaseImpl
+import ru.alexeypostnov.eventdesigner.domain.GetEventMapByEventIdUseCase
+import ru.alexeypostnov.eventdesigner.domain.GetEventMapByEventIdUseCaseImpl
 import javax.inject.Singleton
 
 @Module
@@ -35,6 +37,10 @@ interface AppBindsModule {
     @Binds
     @Singleton
     fun bindGetEventInfoByIdUseCase(impl: GetEventInfoByIdUseCaseImpl): GetEventInfoByIdUseCase
+
+    @Binds
+    @Singleton
+    fun bindsGetEventMapByEventIdUseCase(impl: GetEventMapByEventIdUseCaseImpl): GetEventMapByEventIdUseCase
 
     companion object {
         @Provides
