@@ -12,6 +12,17 @@
         tools:layout="@layout/fragment_event_info">
         <argument
             android:name="eventId"
-            app:argType="long" />
+            app:argType="long"
+            android:defaultValue="0L"/>
+    </fragment>
+    <fragment
+        android:id="@+id/eventMapFragment"
+        android:name="ru.alexeypostnov.eventdesigner.presenter.EventMapFragment"
+        android:label="EventMapFragment"
+        tools:layout="@layout/fragment_event_map">
+        <argument
+            android:name="eventId"
+            app:argType="long"
+            android:defaultValue="0L"/>
     </fragment>
 </navigation>

@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 interface EventInfoRepository {
     fun getAllEventsInfo(): Flow<List<EventInfoEntity>>
-    suspend fun getEventInfoById(eventId: Long): Flow<EventInfoEntity>?
+    suspend fun getEventInfoById(eventId: Long): Flow<EventInfoEntity?>
     suspend fun createEventInfo(eventInfoEntity: EventInfoEntity)
 }
 
@@ -17,7 +17,7 @@ class EventInfoRepositoryImpl @Inject constructor(
     override fun getAllEventsInfo(): Flow<List<EventInfoEntity>> =
         eventsInfoDAO.getAllEventsInfo()
 
-    override suspend fun getEventInfoById(eventId: Long): Flow<EventInfoEntity>? =
+    override suspend fun getEventInfoById(eventId: Long): Flow<EventInfoEntity?> =
         eventsInfoDAO.getEventInfoById(eventId)
 
     override suspend fun createEventInfo(eventInfoEntity: EventInfoEntity) {

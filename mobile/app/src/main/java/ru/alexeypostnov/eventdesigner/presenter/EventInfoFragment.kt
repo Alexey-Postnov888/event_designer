@@ -5,7 +5,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.androidbroadcast.vbpd.viewBinding
 import ru.alexeypostnov.eventdesigner.R
 import ru.alexeypostnov.eventdesigner.appComponent
@@ -20,21 +21,35 @@ class EventInfoFragment: Fragment(R.layout.fragment_event_info) {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private val viewModel: EventInfoViewModel by viewModels { viewModelFactory }
+    val args: EventInfoFragmentArgs by navArgs()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val savedStateHandle = findNavController().currentBackStackEntry?.savedStateHandle
-        val eventId = savedStateHandle?.get<Long>("eventId")
-
-        viewModel.loadEventInfo(eventId!!)
+        try {
+            viewModel.loadEventInfo(args.eventId)
+        } catch (e: Exception) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Ошибка")
+                .setMessage(e.toString())
+                .setPositiveButton("OK", null)
+                .show()
+        }
         viewModel.event.observe(viewLifecycleOwner) {
-            val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val dateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-            binding.eventInfoDescription.text = it?.description
-            binding.eventInfoTime.text = timeFormatter.format(it?.date)
-            binding.eventInfoDate.text = dateFormatter.format(it?.date)
-            binding.eventInfoAddress.text = it?.address
+            if (it != null) {
+                val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val dateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+                binding.eventInfoDescription.text = it.description
+                binding.eventInfoTime.text = timeFormatter.format(it.date)
+                binding.eventInfoDate.text = dateFormatter.format(it.date)
+                binding.eventInfoAddress.text = it.address
+            } else {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Событие не найдено")
+                    .setMessage("Событие с ID ${args.eventId} не найдено в базе данных")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
         }
     }
 

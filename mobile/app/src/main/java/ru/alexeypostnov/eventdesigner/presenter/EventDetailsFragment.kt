@@ -17,32 +17,54 @@ class EventDetailsFragment: Fragment(R.layout.fragment_event_details) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupChipNavigation()
         setupChildFragment()
+        setupChipNavigation()
     }
 
     private fun setupChipNavigation() {
+        binding.eventDetailsNavigationChipGroup.setOnCheckedStateChangeListener(null)
+        binding.chipInfo.isChecked = true
+
         binding.eventDetailsNavigationChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             when (checkedIds.firstOrNull()) {
                 R.id.chipInfo -> navigateToEventInfo()
+                R.id.chipMap -> navigateToEventMap()
             }
         }
-
-        binding.chipInfo.isChecked = true
     }
 
     private fun setupChildFragment() {
         val navHostFragment = childFragmentManager.findFragmentById(R.id.main) as? NavHostFragment
         val childNavController = navHostFragment?.navController
 
-        childNavController?.setGraph(R.navigation.event_details_graph)
+        val startDestinationArgs = Bundle().apply {
+            putLong("eventId", args.eventId)
+        }
 
-        val savedStateHandle = childNavController?.currentBackStackEntry?.savedStateHandle
-        savedStateHandle?.set("eventId", args.eventId)
+        childNavController?.setGraph(R.navigation.event_details_graph, startDestinationArgs)
     }
 
     private fun navigateToEventInfo() {
         val navHostFragment = childFragmentManager.findFragmentById(R.id.main) as? NavHostFragment
-        navHostFragment?.navController?.navigate(R.id.eventInfoFragment)
+        val childNavController = navHostFragment?.navController
+
+        if (childNavController?.currentDestination?.id != R.id.eventInfoFragment) {
+            val args = Bundle().apply {
+                putLong("eventId", this@EventDetailsFragment.args.eventId)
+            }
+            childNavController?.navigate(R.id.eventInfoFragment, args)
+        }
+    }
+
+    private fun navigateToEventMap() {
+        val navHostFragment = childFragmentManager.findFragmentById(R.id.main) as? NavHostFragment
+        val childNavController = navHostFragment?.navController
+
+        if (childNavController?.currentDestination?.id != R.id.eventMapFragment) {
+            val args = Bundle().apply {
+                putLong("eventId", this@EventDetailsFragment.args.eventId)
+            }
+            childNavController?.navigate(R.id.eventMapFragment, args)
+        }
     }
 }

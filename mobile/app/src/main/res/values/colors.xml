@@ -8,4 +8,5 @@
     <color name="backgroundHint">#f2f4f7</color>
     <color name="textOnBackgroundHint">#7e7f81</color>
     <color name="blueAccent">#336FEE</color>
+    <color name="chipsBackground">#e4e6ea</color>
 </resources>
