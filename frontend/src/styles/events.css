@@ -16,7 +16,7 @@
   color: var(--black);
 }
 
-/* Кнопка создания события */
+/* Кнопка создания */
 .events-create-button {
   width: 242px;
   white-space: nowrap;
@@ -99,7 +99,7 @@
   margin-top: auto;
 }
 
-/* Картинка заглушка */
+/* Заглушка */
 .event-image {
   width: 332px;
   height: 200px;

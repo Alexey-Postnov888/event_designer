@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import EventCard from "../components/ui/EventCard";
 import CreateEventModal from "../components/create-event/CreateEventModal";
 
-export default function MyEventsPage({ events }) {
+export default function MyEventsPage({ events = [] }) {
   const navigate = useNavigate();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -14,6 +14,15 @@ export default function MyEventsPage({ events }) {
 
   const handleCloseCreate = () => {
     setIsCreateOpen(false);
+  };
+
+  const handleCreated = (eventId) => {
+    if (eventId) {
+      navigate(`/events/${eventId}`);
+      return;
+    }
+ 
+    window.location.reload();
   };
 
   return (
@@ -31,16 +40,12 @@ export default function MyEventsPage({ events }) {
       </div>
 
       <div className="events-grid">
-        {events.map((event, index) => (
+        {Array.isArray(events) && events.map((event) => (
           <EventCard
             key={event.id}
-            title={event.title}
-            status={event.status}
-            onClick={
-              index === 0
-                ? () => navigate(`/events/${event.id}`)
-                : undefined
-            }
+            title={event.name || event.title}
+            status={event.status || "published"}
+            onClick={() => navigate(`/events/${event.id}`)}
           />
         ))}
       </div>
@@ -48,6 +53,7 @@ export default function MyEventsPage({ events }) {
       <CreateEventModal
         isOpen={isCreateOpen}
         onClose={handleCloseCreate}
+        onCreated={handleCreated}
       />
 
     </div>

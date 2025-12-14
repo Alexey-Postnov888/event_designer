@@ -24,6 +24,10 @@
   border-radius: 999px;
 }
 
+.event-timeline-card.event-timeline-card--empty::before {
+  display: none;
+}
+
 /* Список таймплана */
 .event-timeline-list {
   list-style: none;
@@ -75,4 +79,8 @@
   font-weight: var(--font-weight-text);
   line-height: 1.4;
   color: var(--black);
+}
+
+.event-timeline-card.event-timeline-card--empty .event-timeline-text {
+  color: var(--txt);
 }
