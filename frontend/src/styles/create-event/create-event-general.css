@@ -1,0 +1,173 @@
+.ce-general-form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+/* Поле */
+.ce-field {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 892px;
+}
+
+.ce-field.first-field {
+  margin-top: 0;
+}
+
+/* Подпись */
+.ce-label {
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  font-weight: var(--font-weight-text);
+  color: var(--black);
+}
+
+/* Дата/время */
+.ce-row {
+  display: flex;
+  gap: 28px;
+  width: 892px;
+}
+
+.ce-field--half {
+  flex: 1;
+}
+
+/* Инпут */
+.ce-input {
+  width: 100%;
+  height: 56px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--grey);
+  padding: 0 20px;
+
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: var(--black);
+
+  transition: background-color 0.25s ease;
+}
+
+.ce-input:hover {
+  background-color: #dee0e3;
+}
+
+.ce-input:focus {
+  background-color: #dee0e3;
+  outline: none;
+  border: none;
+}
+
+.ce-input::placeholder {
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: var(--txt);
+}
+
+/* Обертка иконки */
+.ce-input-wrapper {
+  position: relative;
+}
+
+/* Инпут с иконкой */
+.ce-input--with-icon {
+  padding-right: 44px;
+}
+
+/* Иконка */
+.ce-input-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Кнопка */
+.ce-icon-button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ce-icon-button:hover {
+  opacity: 0.85;
+}
+
+/* Скрыть индикаторы WebKit */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
+
+input[type="date"],
+input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Цвет сегментов */
+input[type="date"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field,
+input[type="time"]::-webkit-datetime-edit-ampm-field {
+  color: var(--txt);
+}
+
+/* Текстовое поле */
+.ce-textarea {
+  width: 100%;
+  min-height: 112px;
+
+  border-radius: 8px;
+  border: none;
+  background-color: var(--grey);
+
+  padding: 16px;
+
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: var(--black);
+
+  resize: none;
+  transition: background-color 0.25s ease;
+}
+
+.ce-textarea:hover {
+  background-color: #dee0e3;
+}
+
+.ce-textarea:focus {
+  background-color: #dee0e3;
+  outline: none;
+  border: none;
+}
+
+.ce-textarea::placeholder {
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: var(--txt);
+}

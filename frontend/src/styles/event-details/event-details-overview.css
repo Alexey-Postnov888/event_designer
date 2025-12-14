@@ -41,7 +41,6 @@
   background: var(--grey);
   height: 27px;
   padding: 0 12px;
-
   border-radius: 20px;
 
   font-family: var(--font-text);
@@ -91,10 +90,8 @@
 /* Кнопка "Скачать" */
 .btn.event-details-download-btn {
   margin-top: 28px;
-
   width: auto;
   height: 44px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;

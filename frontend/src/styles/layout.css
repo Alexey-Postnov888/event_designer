@@ -132,14 +132,14 @@
   display: block;
 }
 
-/* Не ативность */
+/* Неактивность */
 .disabled {
   pointer-events: none;
   cursor: default;
   opacity: 1;
 }
 
-/* Основной контент */
+/* Контент */
 .app-main {
   flex: 1;
   padding: 24px 0 32px;

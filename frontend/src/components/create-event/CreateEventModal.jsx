@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { createEvent } from "../../api/events";
+import { getToken } from "../../api/client";
 import Modal from "../ui/Modal";
 
 import "../../styles/create-event/create-event-modal.css";
@@ -10,13 +12,39 @@ import CreateEventMapTab from "./tabs/CreateEventMapTab";
 import CreateEventTimelineTab from "./tabs/CreateEventTimelineTab";
 import CreateEventParticipantsTab from "./tabs/CreateEventParticipantsTab";
 
-export default function CreateEventModal({ isOpen, onClose }) {
-  const [activeTab, setActiveTab] = useState("general");
+// Вкладки
+const TABS = [
+  { id: "general", label: "Общая информация" },
+  { id: "map", label: "Карта мероприятия" },
+  { id: "timeline", label: "Таймлайн" },
+  { id: "participants", label: "Участники" },
+];
+
+export default function CreateEventModal({ isOpen, onClose, onCreated }) {
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [maxVisitedIndex, setMaxVisitedIndex] = useState(0);
+
+  const activeTabId = TABS[activeIndex].id;
+
+  // Общая информация
+  const [general, setGeneral] = useState({
+    name: "",
+    address: "",
+    date: "",
+    time: "",
+    description: "",
+  });
 
   const renderActiveTab = () => {
-    switch (activeTab) {
+    switch (activeTabId) {
       case "general":
-        return <CreateEventGeneralTab />;
+        return (
+          <CreateEventGeneralTab
+            values={general}
+            onChange={setGeneral}
+          />
+        );
       case "map":
         return <CreateEventMapTab />;
       case "timeline":
@@ -28,10 +56,67 @@ export default function CreateEventModal({ isOpen, onClose }) {
     }
   };
 
+  // Переключение вкладки
+  const handleTabClick = (index) => {
+    const isClickable = index <= maxVisitedIndex;
+
+    if (!isClickable) return;
+
+    setActiveIndex(index);
+  };
+
+  // Кнопка "Далее"
+  const handleNext = async () => {
+    if (activeIndex < TABS.length - 1) {
+      const nextIndex = activeIndex + 1;
+      setActiveIndex(nextIndex);
+      setMaxVisitedIndex((prev) => Math.max(prev, nextIndex));
+    } else {
+      // Сохранение минимальных данных события
+      try {
+        const token = getToken();
+        if (!token) {
+          alert("Не авторизовано: войдите как админ, чтобы создавать мероприятия");
+          return;
+        }
+        // Минимальная проверка
+        if (!general.name || !general.address || !general.date || !general.time) {
+          alert("Заполните название, адрес, дату и время");
+          return;
+        }
+
+        const startISO = new Date(`${general.date}T${general.time}:00Z`).toISOString();
+        const endISO = new Date(new Date(startISO).getTime() + 2 * 60 * 60 * 1000).toISOString();
+
+        const payload = {
+          name: general.name,
+          address: general.address,
+          description: general.description || undefined,
+          starts_at: startISO,
+          ends_at: endISO,
+        };
+
+        const resp = await createEvent(payload);
+        const createdId = resp?.id || resp?.ID || resp?.event_id;
+
+        onClose && onClose();
+        onCreated && onCreated(createdId);
+      } catch (e) {
+        const msg = String(e?.message || "Не удалось создать мероприятие");
+        if (msg.includes("Unauthorized") || msg.includes("Missing Authorization") || msg.includes("Admin access")) {
+          alert("Нет доступа: требуется админ-авторизация. Перелогиньтесь и попробуйте снова.");
+        } else {
+          alert(msg);
+        }
+      }
+    }
+  };
+
+  const isLastStep = activeIndex === TABS.length - 1;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="create-event-modal">
-
         {/* Заголовок */}
         <div className="create-event-header">
           <h2 className="create-event-title">Новое мероприятие</h2>
@@ -46,70 +131,50 @@ export default function CreateEventModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Вкладки */}
+        {/* Меню вкладок */}
         <div className="create-event-tabs">
-        <button
-          type="button"
-          className={
-            "create-event-tab" +
-            (activeTab === "general" ? " create-event-tab--active" : "")
-          }
-          onClick={() => setActiveTab("general")}
-        >
-          <span className="tab-text">Общая информация</span>
-          <span className="tab-line"></span>
-        </button>
+          {TABS.map((tab, index) => {
+            const isActive = index === activeIndex;
+            const isClickable = index <= maxVisitedIndex || isLastStep; 
+            // После последнего шага меню кликабельно полностью
 
-        <button
-          type="button"
-          className={
-            "create-event-tab" +
-            (activeTab === "map" ? " create-event-tab--active" : "")
-          }
-          onClick={() => setActiveTab("map")}
-        >
-          <span className="tab-text">Карта мероприятия</span>
-          <span className="tab-line"></span>
-        </button>
+            const className =
+              "create-event-tab" +
+              (isActive ? " create-event-tab--active" : "") +
+              (!isClickable ? " create-event-tab--disabled" : "");
 
-        <button
-          type="button"
-          className={
-            "create-event-tab" +
-            (activeTab === "timeline" ? " create-event-tab--active" : "")
-          }
-          onClick={() => setActiveTab("timeline")}
-        >
-          <span className="tab-text">Таймлайн</span>
-          <span className="tab-line"></span>
-        </button>
-
-        <button
-          type="button"
-          className={
-            "create-event-tab" +
-            (activeTab === "participants" ? " create-event-tab--active" : "")
-          }
-          onClick={() => setActiveTab("participants")}
-        >
-          <span className="tab-text">Участники</span>
-          <span className="tab-line"></span>
-        </button>
-      </div>
-
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                className={className}
+                onClick={() => handleTabClick(index)}
+              >
+                <span className="tab-text">{tab.label}</span>
+                <span className="tab-line"></span>
+              </button>
+            );
+          })}
+        </div>
 
         {/* Контент вкладки */}
-        <div className="create-event-body">
-          {renderActiveTab()}
+        <div className="create-event-body-wrapper">
+          <div className="create-event-body">
+            {renderActiveTab()}
+          </div>
         </div>
+
 
         {/* Футер */}
         <div className="create-event-footer">
-          <button type="button" className="btn btn-primary create-event-next-btn">
-            Далее
+          <button
+            type="button"
+            className="btn btn-primary create-event-next-btn"
+            onClick={handleNext}
+          >
+            {isLastStep ? "Сохранить" : "Далее"}
           </button>
         </div>
-
       </div>
     </Modal>
   );
