@@ -80,4 +80,6 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     implementation("io.coil-kt:coil:2.5.0")
+
+    implementation("com.github.lriccardo:TimelineView:1.1.2")
 }

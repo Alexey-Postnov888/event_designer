@@ -32,6 +32,26 @@
                     android:host="event"
                     android:scheme="eventdesigner" />
             </intent-filter>
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="eventdesigner.alexeypostnov.ru"
+                    android:pathPrefix="/event" />
+            </intent-filter>
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="http"
+                    android:host="eventdesigner.alexeypostnov.ru"
+                    android:pathPrefix="/event" />
+            </intent-filter>
         </activity>
     </application>
 

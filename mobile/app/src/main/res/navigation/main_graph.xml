@@ -32,5 +32,13 @@
         <deepLink
             app:uri="eventdesigner://event?id={eventId}"
             android:autoVerify="true" />
+        <deepLink
+            app:uri="https://eventdesigner.alexeypostnov.ru/event?id={eventId}"
+            android:autoVerify="true" />
+        <deepLink
+            app:uri="https://eventdesigner.alexeypostnov.ru/event/{eventId}"
+            android:autoVerify="true" />
+        <deepLink
+            app:uri="http://eventdesigner.alexeypostnov.ru/event?id={eventId}" />
     </fragment>
 </navigation>

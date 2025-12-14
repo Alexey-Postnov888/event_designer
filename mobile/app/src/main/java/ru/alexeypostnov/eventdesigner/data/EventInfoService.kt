@@ -5,9 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import ru.alexeypostnov.eventdesigner.data.model.EventInfo
 import ru.alexeypostnov.eventdesigner.data.model.MapInfo
-import ru.alexeypostnov.eventdesigner.data.model.StringAttribute
-import ru.alexeypostnov.eventdesigner.data.model.TimeAttribute
-import java.util.UUID
+import ru.alexeypostnov.eventdesigner.data.model.PointInfo
 
 interface EventInfoService {
     @GET("events/{eventId}")
@@ -19,4 +17,9 @@ interface EventInfoService {
     suspend fun getEventMapByEventId(
         @Path("eventId") eventId: String
     ): Response<MapInfo>
+
+    @GET("events/{eventId}/points")
+    suspend fun getEventPointsByEventId(
+        @Path("eventId") eventId: String
+    ): Response<List<PointInfo>>
 }

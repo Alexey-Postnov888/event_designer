@@ -17,13 +17,15 @@ import ru.alexeypostnov.eventdesigner.databinding.FragmentEventMapBinding
 import ru.alexeypostnov.eventdesigner.di.viewModel.ViewModelFactory
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.getValue
 
 class EventMapFragment: Fragment(R.layout.fragment_event_map) {
     private val binding: FragmentEventMapBinding by viewBinding(FragmentEventMapBinding::bind)
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val viewModel: EventInfoViewModel by viewModels { viewModelFactory }
+    private val viewModel: EventInfoViewModel by viewModels(
+        ownerProducer = { requireActivity() },
+        factoryProducer = { viewModelFactory }
+    )
 
     private val args: EventMapFragmentArgs by navArgs()
 
@@ -31,6 +33,12 @@ class EventMapFragment: Fragment(R.layout.fragment_event_map) {
         super.onViewCreated(view, savedInstanceState)
 
         val eventIdString = args.eventId
+
+        val displayMetrics = resources.displayMetrics
+        val screenHeight = displayMetrics.heightPixels
+        val params = view.layoutParams
+        params.height = (screenHeight * 0.65).toInt()
+        view.layoutParams = params
 
         try {
             if (!eventIdString.isNullOrEmpty()) {
@@ -64,7 +72,22 @@ class EventMapFragment: Fragment(R.layout.fragment_event_map) {
     }
 
     private fun loadEventMap(mapUrl: String) {
-        binding.mapView.load(mapUrl) {
+        binding.mapView.apply {
+            maximumScale = 5f
+            mediumScale = 2f
+            minimumScale = 1f
+
+            isZoomable = true
+
+            setScale(1f, true)
+        }
+
+        val devMapUrl = mapUrl.replace(
+            "http://localhost",
+            "http://10.0.2.2"
+        )
+
+        binding.mapView.load(devMapUrl) {
             crossfade(true)
             placeholder(R.drawable.card_image)
             memoryCachePolicy(CachePolicy.ENABLED)
@@ -73,6 +96,10 @@ class EventMapFragment: Fragment(R.layout.fragment_event_map) {
             listener(
                 onSuccess = { _, _ ->
                     setupPhotoView()
+                    binding.mapView.setScale(1f, true)
+                },
+                onError = { _, throwable ->
+                    showErrorDialog("Ошибка загрузки карты: ${throwable.throwable.message}")
                 }
             )
         }
