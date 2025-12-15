@@ -5,8 +5,10 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
 import ru.alexeypostnov.eventdesigner.di.viewModel.ViewModelModule
+import ru.alexeypostnov.eventdesigner.presenter.AuthFragment
 import ru.alexeypostnov.eventdesigner.presenter.EventDetailsFragment
 import ru.alexeypostnov.eventdesigner.presenter.EventInfoFragment
+import ru.alexeypostnov.eventdesigner.presenter.EventListFragment
 import ru.alexeypostnov.eventdesigner.presenter.EventMapFragment
 import ru.alexeypostnov.eventdesigner.presenter.EventTimelineFragment
 import javax.inject.Singleton
@@ -22,6 +24,8 @@ abstract class AppComponent {
     abstract fun inject(fragment: EventMapFragment)
     abstract fun inject(fragment: EventDetailsFragment)
     abstract fun inject(fragment: EventTimelineFragment)
+    abstract fun inject(fragment: AuthFragment)
+    abstract fun inject(fragment: EventListFragment)
 
     @Component.Builder
     interface Builder {

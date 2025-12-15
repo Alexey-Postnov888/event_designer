@@ -4,11 +4,12 @@
     <string name="email_hint">Электронная почта</string>
     <string name="email_text">Электронная почта</string>
     <string name="email_placeholder">ivan@yandex.ru</string>
-    <string name="code_sent_text">Получить код</string>
+    <string name="auth_text">Войти</string>
     <string name="enter_code_title">Введите код</string>
     <string name="enter_code_text">Код</string>
     <string name="resent_code">Отправить ещё раз</string>
     <string name="enter_code_summary">Отправили код подтверждения на вашу почту</string>
     <string name="event_list_title">Мои мероприятия</string>
     <string name="event_details_title">Какое-то мероприятие</string>
+    <string name="password_text">Пароль</string>
 </resources>

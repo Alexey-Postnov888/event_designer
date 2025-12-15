@@ -14,7 +14,7 @@ class EnterCodeFragment : Fragment(R.layout.fragment_enter_code) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.resendCodeButton.setOnClickListener {
-            findNavController().navigate(R.id.action_enterCodeFragment_to_eventDetailsFragment)
+            findNavController().navigate(R.id.action_authFragment_to_eventListFragment)
         }
     }
 }

@@ -3,10 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/mainBackground">
 
     <TextView
-        android:id="@+id/auth_title"
+        android:id="@+id/event_list_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -20,12 +21,15 @@
         android:layout_marginStart="20dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/event_list_wrap"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/auth_title"
+        app:layout_constraintTop_toBottomOf="@id/event_list_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="10dp"
+        tools:listitem="@layout/item_event_list"
+        android:padding="20dp"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

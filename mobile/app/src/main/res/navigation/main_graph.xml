@@ -9,17 +9,13 @@
         android:name="ru.alexeypostnov.eventdesigner.presenter.AuthFragment"
         android:label="AuthFragment" >
         <action
-            android:id="@+id/action_authFragment_to_enterCodeFragment"
-            app:destination="@id/enterCodeFragment" />
+            android:id="@+id/action_authFragment_to_eventListFragment"
+            app:destination="@id/eventListFragment" />
     </fragment>
     <fragment
         android:id="@+id/enterCodeFragment"
         android:name="ru.alexeypostnov.eventdesigner.presenter.EnterCodeFragment"
-        android:label="EnterCodeFragment" >
-        <action
-            android:id="@+id/action_enterCodeFragment_to_eventDetailsFragment"
-            app:destination="@id/eventDetailsFragment" />
-    </fragment>
+        android:label="EnterCodeFragment" />
     <fragment
         android:id="@+id/eventDetailsFragment"
         android:name="ru.alexeypostnov.eventdesigner.presenter.EventDetailsFragment"
@@ -40,5 +36,18 @@
             android:autoVerify="true" />
         <deepLink
             app:uri="http://eventdesigner.alexeypostnov.ru/event?id={eventId}" />
+    </fragment>
+    <fragment
+        android:id="@+id/eventListFragment"
+        android:name="ru.alexeypostnov.eventdesigner.presenter.EventListFragment"
+        android:label="EventListFragment" >
+        <action
+            android:id="@+id/action_eventListFragment_to_eventDetailsFragment"
+            app:destination="@id/eventDetailsFragment" />
+        <argument
+            android:name="eventId"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
     </fragment>
 </navigation>

@@ -1,5 +1,6 @@
 package ru.alexeypostnov.eventdesigner.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
@@ -10,6 +11,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import ru.alexeypostnov.eventdesigner.data.AuthInterceptor
+import ru.alexeypostnov.eventdesigner.data.AuthManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -25,7 +27,15 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAuthInterceptor(): AuthInterceptor = AuthInterceptor()
+    fun provideAuthManager(context: Context): AuthManager {
+        return AuthManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthInterceptor(authManager: AuthManager): AuthInterceptor {
+        return AuthInterceptor(authManager)
+    }
 
     @Provides
     @Singleton
