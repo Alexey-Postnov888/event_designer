@@ -4,29 +4,58 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import ru.alexeypostnov.eventdesigner.data.model.EventInfoEntity
-import ru.alexeypostnov.eventdesigner.domain.CreateEventInfoUseCase
+import ru.alexeypostnov.eventdesigner.data.model.EventInfo
+import ru.alexeypostnov.eventdesigner.data.model.MapInfo
+import ru.alexeypostnov.eventdesigner.data.model.PointInfo
 import ru.alexeypostnov.eventdesigner.domain.GetEventInfoByIdUseCase
+import ru.alexeypostnov.eventdesigner.domain.GetEventMapByEventIdUseCase
+import ru.alexeypostnov.eventdesigner.domain.GetEventPointsInfoUseCase
+import java.util.UUID
 import javax.inject.Inject
 
 class EventInfoViewModel @Inject constructor(
 //    private val createEventInfoUseCase: CreateEventInfoUseCase,
 //    private val getAllEventsInfoUseCase: GetAllEventsInfoUseCase,
-    private val getEventInfoByIdUseCase: GetEventInfoByIdUseCase
+    private val getEventInfoByIdUseCase: GetEventInfoByIdUseCase,
+    private val getEventMapByEventIdUseCase: GetEventMapByEventIdUseCase,
+    private val getEventPointsInfoUseCase: GetEventPointsInfoUseCase
 ): ViewModel() {
     /*private val _eventsInfo = MutableLiveData<List<EventInfoEntity>>()
     val eventsInfo: LiveData<List<EventInfoEntity>> get() = _eventsInfo*/
 
-    private val _event = MutableLiveData<EventInfoEntity?>()
-    val event: LiveData<EventInfoEntity?> get() = _event
+    private val _event = MutableLiveData<EventInfo>()
+    val event: LiveData<EventInfo> get() = _event
 
-    fun loadEventInfo(eventId: Long) {
+    private val _eventMap = MutableLiveData<MapInfo>()
+    val eventMap: LiveData<MapInfo> get() = _eventMap
+
+    private val _eventPointsInfo = MutableLiveData<List<PointInfo>>()
+    val eventPointsInfo: LiveData<List<PointInfo>> get() = _eventPointsInfo
+
+    fun loadEventInfo(eventId: UUID) {
         viewModelScope.launch {
-            getEventInfoByIdUseCase(eventId)?.collect {
-                _event.postValue(it)
-            }
+            val eventInfo = getEventInfoByIdUseCase(eventId)
+            _event.postValue(
+                eventInfo ?: error("eventInfo is null")
+            )
+        }
+    }
+    fun loadEventMap(eventId: UUID) {
+        viewModelScope.launch() {
+            val eventMap = getEventMapByEventIdUseCase(eventId)
+            _eventMap.postValue(
+                eventMap ?: error("eventMap is null")
+            )
+        }
+    }
+
+    fun loadEventPointsInfo(eventId: UUID) {
+        viewModelScope.launch {
+            val eventPointsInfo = getEventPointsInfoUseCase(eventId)
+            _eventPointsInfo.postValue(
+                eventPointsInfo ?: error("eventPointInfo is null")
+            )
         }
     }
 }

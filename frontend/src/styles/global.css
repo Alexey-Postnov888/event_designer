@@ -183,7 +183,7 @@ p,
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Жёлтая основная кнопка */
+/* Основная кнопка */
 .btn-primary {
   background-color: var(--yellow);
 }

@@ -35,7 +35,7 @@ export default function EventCard({
       {/* Заголовок */}
       <h3 className="event-title">{title}</h3>
 
-      {/* Изображение / заглушка */}
+      {/* Изображение */}
       <div className="event-image-wrapper">
         {imageUrl ? (
           <img src={imageUrl} alt={title} className="event-image" />

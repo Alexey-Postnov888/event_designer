@@ -16,6 +16,14 @@ import ru.alexeypostnov.eventdesigner.domain.GetAllEventsInfoUseCase
 import ru.alexeypostnov.eventdesigner.domain.GetAllEventsInfoUseCaseImpl
 import ru.alexeypostnov.eventdesigner.domain.GetEventInfoByIdUseCase
 import ru.alexeypostnov.eventdesigner.domain.GetEventInfoByIdUseCaseImpl
+import ru.alexeypostnov.eventdesigner.domain.GetEventMapByEventIdUseCase
+import ru.alexeypostnov.eventdesigner.domain.GetEventMapByEventIdUseCaseImpl
+import ru.alexeypostnov.eventdesigner.domain.GetEventPointsInfoUseCase
+import ru.alexeypostnov.eventdesigner.domain.GetEventPointsInfoUseCaseImpl
+import ru.alexeypostnov.eventdesigner.domain.GetMyEventsUseCase
+import ru.alexeypostnov.eventdesigner.domain.GetMyEventsUseCaseImpl
+import ru.alexeypostnov.eventdesigner.domain.PostAuthAdminLoginUseCase
+import ru.alexeypostnov.eventdesigner.domain.PostAuthAdminLoginUseCaseImpl
 import javax.inject.Singleton
 
 @Module
@@ -35,6 +43,22 @@ interface AppBindsModule {
     @Binds
     @Singleton
     fun bindGetEventInfoByIdUseCase(impl: GetEventInfoByIdUseCaseImpl): GetEventInfoByIdUseCase
+
+    @Binds
+    @Singleton
+    fun bindsGetEventMapByEventIdUseCase(impl: GetEventMapByEventIdUseCaseImpl): GetEventMapByEventIdUseCase
+
+    @Binds
+    @Singleton
+    fun bindsGetEventPointsInfoUseCase(impl: GetEventPointsInfoUseCaseImpl): GetEventPointsInfoUseCase
+
+    @Binds
+    @Singleton
+    fun bindsPostAuthAdminLoginUseCase(impl: PostAuthAdminLoginUseCaseImpl): PostAuthAdminLoginUseCase
+
+    @Binds
+    @Singleton
+    fun bindsGetMyEventsUseCase(impl: GetMyEventsUseCaseImpl): GetMyEventsUseCase
 
     companion object {
         @Provides

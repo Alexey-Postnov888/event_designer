@@ -12,6 +12,29 @@
         tools:layout="@layout/fragment_event_info">
         <argument
             android:name="eventId"
-            app:argType="long" />
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
     </fragment>
+    <fragment
+        android:id="@+id/eventMapFragment"
+        android:name="ru.alexeypostnov.eventdesigner.presenter.EventMapFragment"
+        android:label="EventMapFragment"
+        tools:layout="@layout/fragment_event_map">
+        <argument
+            android:name="eventId"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/eventTimelineFragment"
+        android:name="ru.alexeypostnov.eventdesigner.presenter.EventTimelineFragment"
+        android:label="EventTimelineFragment"
+        tools:layout="@layout/fragment_event_timeline"/>
+    <argument
+        android:name="eventId"
+        app:argType="string"
+        android:defaultValue="@null"
+        app:nullable="true" />
 </navigation>

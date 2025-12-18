@@ -7,4 +7,24 @@ export default defineConfig({
     react(),
     svgr(),
   ],
+  server: {
+    proxy: {
+      "/auth": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      "/events": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      "/admin": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      "/static": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+    },
+  },
 });

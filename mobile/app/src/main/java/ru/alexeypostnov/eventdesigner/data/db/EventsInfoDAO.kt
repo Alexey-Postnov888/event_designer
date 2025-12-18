@@ -15,5 +15,5 @@ interface EventsInfoDAO {
     fun getAllEventsInfo(): Flow<List<EventInfoEntity>>
 
     @Query("SELECT * FROM ${EventInfoEntity.TABLE} WHERE id = :eventId")
-    fun getEventInfoById(eventId: Long): Flow<EventInfoEntity>?
+    fun getEventInfoById(eventId: Long): Flow<EventInfoEntity?>
 }

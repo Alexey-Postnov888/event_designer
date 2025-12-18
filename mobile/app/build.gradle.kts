@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("androidx.navigation.safeargs.kotlin")
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -60,7 +61,7 @@ dependencies {
     implementation("androidx.navigation:navigation-dynamic-features-fragment:${navigation}")
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
 
     implementation("com.google.dagger:dagger:2.56.2")
     ksp("com.google.dagger:dagger-compiler:2.56.2")
@@ -70,4 +71,15 @@ dependencies {
     ksp("androidx.room:room-compiler:2.8.4")
 
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation("io.coil-kt:coil:2.5.0")
+
+    implementation("com.github.lriccardo:TimelineView:1.1.2")
 }

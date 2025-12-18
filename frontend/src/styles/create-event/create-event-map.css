@@ -1,0 +1,209 @@
+.ce-map-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Верхняя панель управления */
+.ce-map-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.ce-map-upload-btn {
+  height: 40px;
+}
+
+.ce-map-add-point-btn {
+  height: 40px;
+  background-color: var(--grey);
+}
+
+.ce-map-add-point-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ce-map-hint {
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  color: var(--txt);
+}
+
+/* Область карты */
+.ce-map-canvas {
+  position: relative;
+  width: 892px;
+  height: 454px;
+  border-radius: 16px;
+  background-color: var(--grey);
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.ce-map-canvas--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.ce-map-placeholder {
+  text-align: center;
+  padding: 20px;
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  color: var(--txt);
+}
+
+.ce-map-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Метка на карте */
+.ce-map-point {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.ce-map-point-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--blue);
+  border: 2px solid var(--white);
+  box-shadow: 0 0 0 2px rgba(51, 111, 238, 0.3);
+}
+
+.ce-map-point--active .ce-map-point-dot {
+  background-color: var(--yellow);
+  box-shadow: 0 0 0 2px rgba(255, 221, 45, 0.4);
+}
+
+.ce-map-point-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: transparent;
+}
+
+.ce-map-point-popup-positioner {
+  position: absolute;
+  z-index: 1101;
+}
+
+/* окно попапа */
+.ce-map-point-popup {
+  width: 320px;
+  padding: 16px;
+  border-radius: 16px;
+  background-color: var(--white);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ce-map-point-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ce-map-point-popup-title {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--black);
+}
+
+/* поле описания */
+.ce-map-point-popup-textarea {
+  width: 100%;
+  min-height: 120px;
+  border-radius: 10px;
+  border: none;
+  background-color: var(--grey);
+  padding: 10px 12px;
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: var(--black);
+  resize: vertical;
+  transition: background-color 0.25s ease;
+}
+
+.ce-map-point-popup-textarea:hover {
+  background-color: #dee0e3;
+}
+
+.ce-map-point-popup-textarea:focus {
+  background-color: #dee0e3;
+  outline: none;
+}
+
+/* блок с кнопками */
+.ce-map-point-popup-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+/* кнопка "Отмена" */
+.ce-map-point-popup-cancel {
+  background: none;
+  border: 1px solid var(--devider);
+  border-radius: 8px;
+  height: 36px;
+  padding: 0 16px;
+
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  color: var(--black);
+}
+
+.ce-map-point-popup-cancel:hover {
+  border-color: var(--black);
+}
+
+/* кнопка "Добавить" */
+.ce-map-point-popup-submit {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background-color: var(--yellow);
+
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  color: var(--black);
+}
+
+.ce-map-point-popup-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ce-map-point-popup-delete {
+  background: none;
+  border: 1px solid #e74c3c;
+  border-radius: 8px;
+  height: 36px;
+  padding: 0 16px;
+
+  font-family: var(--font-text);
+  color: #e74c3c;
+}
+
+.ce-map-point-popup-delete:hover {
+  background: #ffe6e6;
+  border-color: #c0392b;
+}
