@@ -19,7 +19,7 @@ type RequestCodeRequest struct {
 	// Email пользователя, запрашивающего код
 	Email string `json:"email" example:"observer1@example.com"`
 	// ID мероприятия, к которому запрашивается доступ
-	EventID string `json:"event_id" example:"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"`
+	EventID string `json:"event_id,omitempty" example:"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"`
 }
 
 // VerifyCodeRequest - Подтверждение кода
@@ -29,7 +29,7 @@ type VerifyCodeRequest struct {
 	// Одноразовый код, полученный по почте
 	Code string `json:"code" example:"123456"`
 	// ID мероприятия
-	EventID string `json:"event_id" example:"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"`
+	EventID string `json:"event_id,omitempty" example:"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"`
 }
 
 // CreateEventRequest - Создание мероприятия

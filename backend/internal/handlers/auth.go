@@ -122,28 +122,30 @@ func (h *AuthHandler) RequestCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.EventID == "" {
-		http.Error(w, "Event ID required in body", http.StatusBadRequest)
+	if req.Email == "" {
+		http.Error(w, "Email is required", http.StatusBadRequest)
 		return
 	}
 
-	eventID, err := uuid.Parse(req.EventID)
-	if err != nil {
-		http.Error(w, "Invalid event_id format (must be UUID)", http.StatusBadRequest)
-		return
-	}
+	if req.EventID != "" {
+		eventID, err := uuid.Parse(req.EventID)
+		if err != nil {
+			http.Error(w, "Invalid event_id format (must be UUID)", http.StatusBadRequest)
+			return
+		}
 
-	allowed, err := h.db.IsEmailAllowedForEvent(context.Background(), db.IsEmailAllowedForEventParams{
-		EventID: eventID,
-		Email:   req.Email,
-	})
-	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
-	}
-	if !allowed {
-		http.Error(w, "Email not allowed for this event", http.StatusForbidden)
-		return
+		allowed, err := h.db.IsEmailAllowedForEvent(r.Context(), db.IsEmailAllowedForEventParams{
+			EventID: eventID,
+			Email:   req.Email,
+		})
+		if err != nil {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+		if !allowed {
+			http.Error(w, "Email not allowed for this event", http.StatusForbidden)
+			return
+		}
 	}
 
 	code, err := generateSecureRandomCode()
@@ -153,7 +155,7 @@ func (h *AuthHandler) RequestCode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	expiresAt := time.Now().Add(10 * time.Minute)
-	err = h.db.SaveVerificationCode(context.Background(), db.SaveVerificationCodeParams{
+	err = h.db.SaveVerificationCode(r.Context(), db.SaveVerificationCodeParams{
 		Email:     req.Email,
 		Code:      code,
 		ExpiresAt: expiresAt,
@@ -163,14 +165,12 @@ func (h *AuthHandler) RequestCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := map[string]string{
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Code sent to email",
 		"email":   req.Email,
 		"code":    code,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	})
 }
 
 func generateSecureRandomCode() (string, error) {
@@ -212,18 +212,7 @@ func (h *AuthHandler) VerifyCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.EventID == "" {
-		http.Error(w, "Event ID required in body", http.StatusBadRequest)
-		return
-	}
-
-	eventID, err := uuid.Parse(req.EventID)
-	if err != nil {
-		http.Error(w, "Invalid event_id format", http.StatusBadRequest)
-		return
-	}
-
-	codeRow, err := h.db.GetVerificationCode(context.Background(), req.Email)
+	codeRow, err := h.db.GetVerificationCode(r.Context(), req.Email)
 	if err != nil {
 		http.Error(w, "Invalid or expired code", http.StatusUnauthorized)
 		return
@@ -234,20 +223,30 @@ func (h *AuthHandler) VerifyCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	allowed, err := h.db.IsEmailAllowedForEvent(context.Background(), db.IsEmailAllowedForEventParams{
-		EventID: eventID,
-		Email:   req.Email,
-	})
-	if err != nil || !allowed {
-		http.Error(w, "Email not allowed for this event", http.StatusForbidden)
-		return
+	// Если EventID передан, проверяем доступ конкретно к этому мероприятию
+	if req.EventID != "" {
+		eventID, err := uuid.Parse(req.EventID)
+		if err != nil {
+			http.Error(w, "Invalid event_id format", http.StatusBadRequest)
+			return
+		}
+
+		allowed, err := h.db.IsEmailAllowedForEvent(r.Context(), db.IsEmailAllowedForEventParams{
+			EventID: eventID,
+			Email:   req.Email,
+		})
+		if err != nil || !allowed {
+			http.Error(w, "Email not allowed for this event", http.StatusForbidden)
+			return
+		}
 	}
 
+	// Получаем существующего пользователя или создаем нового (Observer)
 	var userRow db.GetUserByEmailRow
-	userFromDB, err := h.db.GetUserByEmail(context.Background(), req.Email)
+	userFromDB, err := h.db.GetUserByEmail(r.Context(), req.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			observerRow, err := h.db.CreateObserver(context.Background(), req.Email)
+			observerRow, err := h.db.CreateObserver(r.Context(), req.Email)
 			if err != nil {
 				http.Error(w, "Failed to create observer", http.StatusInternalServerError)
 				return
@@ -265,12 +264,17 @@ func (h *AuthHandler) VerifyCode(w http.ResponseWriter, r *http.Request) {
 		userRow = userFromDB
 	}
 
-	h.db.DeleteVerificationCode(context.Background(), req.Email)
+	h.db.DeleteVerificationCode(r.Context(), req.Email)
 
 	token, err := auth.GenerateToken(int(userRow.ID), userRow.Email, userRow.Role, auth.EventTokenExpiry)
 	if err != nil {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		return
+	}
+
+	message := "Login successful"
+	if req.EventID != "" {
+		message = fmt.Sprintf("Access to event granted as %s", userRow.Role)
 	}
 
 	resp := models.AuthResponse{
@@ -280,7 +284,7 @@ func (h *AuthHandler) VerifyCode(w http.ResponseWriter, r *http.Request) {
 			Role:  userRow.Role,
 		},
 		Token:   token,
-		Message: fmt.Sprintf("Access to event granted as %s", userRow.Role),
+		Message: message,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
