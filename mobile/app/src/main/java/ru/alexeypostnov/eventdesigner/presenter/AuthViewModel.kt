@@ -18,7 +18,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             val authInfo = postAuthAdminLoginUseCase(email, password)
             _token.postValue(
-                authInfo?.token ?: error("eventInfo is null")
+                authInfo?.token ?: "authError"
             )
         }
     }

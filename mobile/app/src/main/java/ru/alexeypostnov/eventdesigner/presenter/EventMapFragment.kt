@@ -72,13 +72,6 @@ class EventMapFragment: Fragment(R.layout.fragment_event_map) {
     }
 
     private fun loadEventMap(mapUrl: String) {
-//        binding.mapView.apply {
-//            maximumScale = 5f
-//            mediumScale = 2f
-//            minimumScale = 1f
-//            isZoomable = true
-//        }
-
         val devMapUrl = mapUrl.replace(
             "http://localhost:8080",
             "https://eventdesigner.alexeypostnov.ru"

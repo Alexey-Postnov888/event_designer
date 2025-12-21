@@ -91,18 +91,19 @@
                 app:boxStrokeWidthFocused="0dp"
                 android:layout_marginTop="10dp"
                 app:boxBackgroundColor="@color/backgroundHint"
-                app:endIconMode="clear_text"
+                app:endIconMode="password_toggle"
                 app:endIconTint="@color/textOnBackgroundHint"
                 app:hintTextColor="@color/black"
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password_text"
+                    style="@style/EditTextStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:inputType="textPassword"
                     android:maxLines="1"
-                    android:textColor="@color/black"
-                    style="@style/EditTextStyle" />
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -119,6 +120,19 @@
                 android:paddingVertical="12dp"
                 app:backgroundTint="@color/yellowAccent"
                 android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/auth_error_txtView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/auth_button"
+                android:text="ошибка"
+                android:layout_marginTop="10dp"
+                android:textColor="@android:color/holo_red_light"
+                android:visibility="gone"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 

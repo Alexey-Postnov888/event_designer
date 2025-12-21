@@ -2,6 +2,7 @@ package ru.alexeypostnov.eventdesigner.presenter
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -41,8 +42,13 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         }
 
         viewModel.token.observe(viewLifecycleOwner) { token ->
-            saveToken(token)
-            navigateToEventList()
+            if (token != "authError") {
+                saveToken(token)
+                navigateToEventList()
+            } else {
+                binding.authErrorTxtView.text = "Проверьте логин или пароль"
+                binding.authErrorTxtView.visibility = View.VISIBLE
+            }
         }
     }
 
