@@ -49,7 +49,7 @@ class TimelineAdapter: RecyclerView.Adapter<TimelineAdapter.TimelineViewHolder>(
     override fun getItemCount(): Int = timelineList.size
 
     fun submitTimelineList(list: List<PointInfo>) {
-        timelineList = list
+        timelineList = list.filter { !it.timelineDescription.string.isEmpty() }
         notifyDataSetChanged()
     }
 
@@ -65,9 +65,11 @@ class TimelineAdapter: RecyclerView.Adapter<TimelineAdapter.TimelineViewHolder>(
             val endsAtInstant = item.endAt.instant
             val endsAtDate = Date.from(endsAtInstant)
 
-            binding.timelineItemDescription.text = item.timelineDescription.string
-            binding.timelineItemStartTime.text = timeFormatter.format(startsAtDate)
-            binding.timelineItemEndTime.text = timeFormatter.format(endsAtDate)
+            if (!item.timelineDescription.string.isEmpty()) {
+                binding.timelineItemDescription.text = item.timelineDescription.string
+                binding.timelineItemStartTime.text = timeFormatter.format(startsAtDate)
+                binding.timelineItemEndTime.text = timeFormatter.format(endsAtDate)
+            }
         }
     }
 }

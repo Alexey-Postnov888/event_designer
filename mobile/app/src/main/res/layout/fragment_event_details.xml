@@ -61,7 +61,8 @@
                     app:checkedIcon="@null"
                     app:chipCornerRadius="10dp"
                     app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeWidth="0dp"/>
+                    app:chipStrokeWidth="0dp"
+                    android:textColor="@color/black"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipMap"
@@ -72,7 +73,8 @@
                     app:checkedIcon="@null"
                     app:chipCornerRadius="10dp"
                     app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeWidth="0dp"/>
+                    app:chipStrokeWidth="0dp"
+                    android:textColor="@color/black"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipTimeline"
@@ -83,7 +85,8 @@
                     app:checkedIcon="@null"
                     app:chipCornerRadius="10dp"
                     app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeWidth="0dp"/>
+                    app:chipStrokeWidth="0dp"
+                    android:textColor="@color/black"/>
 
             </com.google.android.material.chip.ChipGroup>
 
