@@ -15,7 +15,6 @@ import ru.alexeypostnov.eventdesigner.R
 import ru.alexeypostnov.eventdesigner.appComponent
 import ru.alexeypostnov.eventdesigner.databinding.FragmentEventMapBinding
 import ru.alexeypostnov.eventdesigner.di.viewModel.ViewModelFactory
-import java.util.UUID
 import javax.inject.Inject
 
 class EventMapFragment: Fragment(R.layout.fragment_event_map) {
@@ -43,8 +42,6 @@ class EventMapFragment: Fragment(R.layout.fragment_event_map) {
         try {
             if (!eventIdString.isNullOrEmpty()) {
                 try {
-                    val eventId = UUID.fromString(eventIdString)
-                    viewModel.loadEventMap(eventId)
                     viewModel.eventMap.observe(viewLifecycleOwner) {
                         if (it != null) {
                             loadEventMap(it.mapUrl)

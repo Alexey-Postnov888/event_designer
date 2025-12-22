@@ -1,8 +1,12 @@
 package ru.alexeypostnov.eventdesigner.presenter
 
+import android.app.DownloadManager
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -37,11 +41,18 @@ class EventInfoFragment: Fragment(R.layout.fragment_event_info) {
         val eventId = UUID.fromString(args.eventId)
 
         viewModel.loadEventInfo(eventId)
+        viewModel.loadEventMap(eventId)
 
         viewModel.event.observe(viewLifecycleOwner) {eventInfo ->
             eventInfo?.let {
                 displayEventInfo(it)
             }
+        }
+
+        binding.downloadMapBtn.setOnClickListener {
+            viewModel.eventMap.value?.let { mapInfo ->
+                downloadMap(mapInfo.mapUrl, eventId, )
+            } ?: showDownloadingToast("Карта еще не загружена")
         }
     }
 
@@ -59,6 +70,27 @@ class EventInfoFragment: Fragment(R.layout.fragment_event_info) {
         } catch (e: Exception) {
             showErrorDialog("Ошибка отображения данных: ${e.message}")
         }
+    }
+
+    private fun downloadMap(mapUrl: String, eventId: UUID) {
+        val devMapUrl = mapUrl.replace(
+            "http://localhost:8080",
+            "https://eventdesigner.alexeypostnov.ru"
+        )
+
+        val downloadManager = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val request = DownloadManager.Request(Uri.parse(devMapUrl))
+            .setTitle("Карта мероприятия")
+            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "map.jpg")
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
+        downloadManager.enqueue(request)
+
+        showDownloadingToast("Скачивание началось")
+    }
+
+    private fun showDownloadingToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     private fun showErrorDialog(message: String) {

@@ -83,6 +83,7 @@
             android:layout_marginTop="10dp"/>
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/download_map_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/event_info_description"
