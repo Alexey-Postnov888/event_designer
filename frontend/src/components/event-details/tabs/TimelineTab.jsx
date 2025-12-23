@@ -1,6 +1,7 @@
 import "../../../styles/event-details/event-details-timeline.css";
 import { useEffect, useState } from "react";
 import { getEventPoints } from "../../../api/events";
+import { parseDbDate, formatTimeRU } from "../../../utils/date";
 
 function normalize(value) {
   if (value == null) return "";
@@ -21,15 +22,19 @@ export default function TimelineTab({ event }) {
         if (cancelled) return;
         // Фильтр таймлайна
         const timeline = (Array.isArray(data) ? data : [])
-          .map((p) => ({
-            start_at: normalize(p.start_at),
-            end_at: normalize(p.end_at),
-            text: normalize(p.timeline_description),
-          }))
-          .filter((p) => p.start_at && p.text);
+          .map((p) => {
+            const startDate = parseDbDate(p.start_at);
+            const endDate = parseDbDate(p.end_at);
+            return {
+              startDate,
+              endDate,
+              text: normalize(p.timeline_description),
+            };
+          })
+          .filter((p) => p.startDate && p.text);
 
         // Сортировка по времени
-        timeline.sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+        timeline.sort((a, b) => (a.startDate?.getTime() ?? 0) - (b.startDate?.getTime() ?? 0));
         setItems(timeline);
       } catch (e) {
         if (cancelled) return;
@@ -57,13 +62,10 @@ export default function TimelineTab({ event }) {
         ) : (
           <ul className="event-timeline-list">
             {items.map((item, index) => {
-              const parseDate = (str) => {
-                if (!str) return null;
-                const d = new Date(str);
-                return isNaN(d.getTime()) ? null : d;
-              };
-              const startDate = parseDate(item.start_at);
-              const timeStr = startDate ? startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+              const { startDate, endDate, text } = item;
+              const timeStr = startDate ? (
+                endDate ? `${formatTimeRU(startDate)} — ${formatTimeRU(endDate)}` : formatTimeRU(startDate)
+              ) : "";
               return (
                 <li className="event-timeline-item" key={index}>
                   <div className="event-timeline-time" style={{ color: timeStr ? undefined : "var(--txt)" }}>
@@ -74,7 +76,7 @@ export default function TimelineTab({ event }) {
                   <span className="event-timeline-dot" />
                 </div>
 
-                <p className="event-timeline-text">{item.text}</p>
+                <p className="event-timeline-text">{text}</p>
                 </li>
               );
             })}

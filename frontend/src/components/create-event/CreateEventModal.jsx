@@ -32,9 +32,15 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
     name: "",
     address: "",
     date: "",
-    time: "",
+    timeFrom: "",
+    timeTo: "",
     description: "",
   });
+
+  // Карта и точки: храним состояние на уровне модалки, чтобы не терялось при переключении вкладок
+  const [mapPreviewUrl, setMapPreviewUrl] = useState(null);
+  const [mapFile, setMapFile] = useState(null);
+  const [mapPoints, setMapPoints] = useState([]); // {id, x(0..100), y(0..100), title, timeline_description}
 
   const renderActiveTab = () => {
     switch (activeTabId) {
@@ -46,7 +52,19 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
           />
         );
       case "map":
-        return <CreateEventMapTab />;
+        return (
+          <CreateEventMapTab
+            mapPreviewUrl={mapPreviewUrl}
+            points={mapPoints}
+            onMapSelected={(file, previewUrl) => {
+              setMapFile(file);
+              setMapPreviewUrl(previewUrl);
+              // При смене карты сбрасываем точки, чтобы не привязывать их к старой карте
+              setMapPoints([]);
+            }}
+            onPointsChange={setMapPoints}
+          />
+        );
       case "timeline":
         return <CreateEventTimelineTab />;
       case "participants":
@@ -72,7 +90,7 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
       setActiveIndex(nextIndex);
       setMaxVisitedIndex((prev) => Math.max(prev, nextIndex));
     } else {
-      // Сохранение минимальных данных события
+      // Сохранение данных события + привязка карты и точек
       try {
         const token = getToken();
         if (!token) {
@@ -80,13 +98,20 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
           return;
         }
         // Минимальная проверка
-        if (!general.name || !general.address || !general.date || !general.time) {
-          alert("Заполните название, адрес, дату и время");
+        if (!general.name || !general.address || !general.date || !general.timeFrom || !general.timeTo) {
+          alert("Заполните название, адрес, дату и промежуток времени");
           return;
         }
 
-        const startISO = new Date(`${general.date}T${general.time}:00Z`).toISOString();
-        const endISO = new Date(new Date(startISO).getTime() + 2 * 60 * 60 * 1000).toISOString();
+        // Формируем ISO-строки. Требуем, чтобы конец не был раньше начала
+        // Интерпретируем выбранное время как локальное и конвертируем в UTC
+        const startISO = new Date(`${general.date}T${general.timeFrom}:00`).toISOString();
+        const endISO = new Date(`${general.date}T${general.timeTo}:00`).toISOString();
+
+        if (new Date(endISO).getTime() <= new Date(startISO).getTime()) {
+          alert("Время окончания должно быть позже времени начала");
+          return;
+        }
 
         const payload = {
           name: general.name,
@@ -98,6 +123,37 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
 
         const resp = await createEvent(payload);
         const createdId = resp?.id || resp?.ID || resp?.event_id;
+
+        // После создания события — загружаем карту (если выбрана)
+        try {
+          if (mapFile && createdId) {
+            const { uploadEventMap } = await import("../../api/maps");
+            await uploadEventMap(createdId, mapFile);
+          }
+        } catch (e) {
+          console.warn("Не удалось загрузить карту:", e);
+        }
+
+        // Сохраняем точки: только простые точки (только заголовок, X/Y)
+        try {
+          if (Array.isArray(mapPoints) && mapPoints.length && createdId) {
+            const { createSimplePoint } = await import("../../api/points");
+            for (const p of mapPoints) {
+              const title = (p.title || "").trim();
+              if (!title) continue;
+              const x = Math.round(p.x ?? 0);
+              const y = Math.round(p.y ?? 0);
+              await createSimplePoint({
+                event_id: createdId,
+                x,
+                y,
+                title,
+              });
+            }
+          }
+        } catch (e) {
+          console.warn("Не удалось сохранить точки:", e);
+        }
 
         onClose && onClose();
         onCreated && onCreated(createdId);

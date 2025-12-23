@@ -4,6 +4,7 @@ import IconLocation from "../../../assets/icons/icon-location.svg?react";
 import IconDownload from "../../../assets/icons/icon-download.svg?react";
 
 import "../../../styles/event-details/event-details-overview.css";
+import { buildEventDateTexts, parseDbDate } from "../../../utils/date";
 
 function normalize(value) {
   if (value == null) return "";
@@ -17,20 +18,8 @@ function normalize(value) {
 
 export default function OverviewTab({ event }) {
   const startsRaw = event?.starts_at;
-  const startsStr = normalize(startsRaw);
-  const endsStr = normalize(event?.ends_at);
-
-  const parseDate = (str) => {
-    if (!str) return null;
-    const d = new Date(str);
-    return isNaN(d.getTime()) ? null : d;
-  };
-
-  const starts = parseDate(startsStr);
-  const ends = parseDate(endsStr);
-  const timeStr = starts ? starts.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
-  const dateStr = starts ? starts.toLocaleDateString() : "";
-  const endTimeStr = ends ? ends.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+  const endsRaw = event?.ends_at;
+  const { dateText, timeText } = buildEventDateTexts(startsRaw, endsRaw);
   const locationStr = normalize(event?.address || event?.location);
   const descriptionStr = normalize(event?.description).trim();
   return (
@@ -41,14 +30,14 @@ export default function OverviewTab({ event }) {
             <div className="event-details-chips-left">
               <div className="event-chip">
                 <IconTime className="event-chip__icon" />
-                <span style={{ color: timeStr ? undefined : "var(--txt)" }}>
-                  {timeStr || "Время не указано"}
+                <span style={{ color: timeText ? undefined : "var(--txt)" }}>
+                  {timeText || "Время не указано"}
                 </span>
               </div>
               <div className="event-chip">
                 <IconCalendar className="event-chip__icon" />
-                <span style={{ color: dateStr ? undefined : "var(--txt)" }}>
-                  {dateStr || "Дата не указана"}
+                <span style={{ color: dateText ? undefined : "var(--txt)" }}>
+                  {dateText || "Дата не указана"}
                 </span>
               </div>
             </div>

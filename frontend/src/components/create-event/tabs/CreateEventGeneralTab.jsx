@@ -7,7 +7,8 @@ import "../../../styles/create-event/create-event-general.css";
 export default function CreateEventGeneralTab({ values, onChange }) {
   const setField = (key) => (e) => onChange({ ...values, [key]: e.target.value });
   const dateRef = useRef(null);
-  const timeRef = useRef(null);
+  const timeFromRef = useRef(null);
+  const timeToRef = useRef(null);
 
   const openPicker = (ref) => {
     const el = ref?.current;
@@ -17,6 +18,49 @@ export default function CreateEventGeneralTab({ values, onChange }) {
       try { el.showPicker(); return; } catch {}
     }
     el.focus();
+  };
+
+  const clampToDay = (hhmm) => {
+    if (!hhmm) return "";
+    const [hStr = "0", mStr = "0"] = hhmm.split(":");
+    let h = Math.max(0, Math.min(23, parseInt(hStr, 10) || 0));
+    let m = Math.max(0, Math.min(59, parseInt(mStr, 10) || 0));
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  };
+
+  const addHours = (hhmm, hoursToAdd = 2) => {
+    if (!hhmm) return "";
+    const [hStr = "0", mStr = "0"] = hhmm.split(":");
+    let total = (parseInt(hStr, 10) || 0) * 60 + (parseInt(mStr, 10) || 0) + hoursToAdd * 60;
+    // Клапаем в пределах суток; если уходит за 24:00 — ограничим 23:59
+    total = Math.min(total, 23 * 60 + 59);
+    total = Math.max(total, 0);
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  };
+
+  const handleTimeFromChange = (e) => {
+    const newFrom = clampToDay(e.target.value);
+    let next = { ...values, timeFrom: newFrom };
+
+    // Если окончания нет — автозаполним +2 часа
+    if (!values.timeTo) {
+      next.timeTo = addHours(newFrom, 2);
+    } else if (values.timeTo && values.timeTo < newFrom) {
+      // Если уже выбранное окончание раньше начала — подтянем к началу
+      next.timeTo = newFrom;
+    }
+    onChange(next);
+  };
+
+  const handleTimeToChange = (e) => {
+    let newTo = clampToDay(e.target.value);
+    const from = values.timeFrom || "";
+    if (from && newTo < from) {
+      newTo = from; // не позволяем окончанию быть раньше начала
+    }
+    onChange({ ...values, timeTo: newTo });
   };
   return (
     <form className="ce-general-form">
@@ -74,25 +118,42 @@ export default function CreateEventGeneralTab({ values, onChange }) {
           </div>
         </div>
 
-        {/* Время */}
+        {/* Время (промежуток) */}
         <div className="ce-field ce-field--half">
-          <label className="ce-label" htmlFor="ce-time">
+          <label className="ce-label" htmlFor="ce-time-from">
             Время
           </label>
 
-          <div className="ce-input-wrapper">
-            <input
-              id="ce-time"
-              type="time"
-              className="ce-input ce-input--with-icon"
-              placeholder="Время"
-              value={values.time}
-              onChange={setField("time")}
-              ref={timeRef}
-            />
-            <button type="button" className="ce-icon-button" onClick={() => openPicker(timeRef)} aria-label="Выбрать время">
-              <IconTime className="ce-input-icon" />
-            </button>
+          <div style={{ display: "flex", gap: 12 }}>
+            <div className="ce-input-wrapper" style={{ flex: 1 }}>
+              <input
+                id="ce-time-from"
+                type="time"
+                className="ce-input ce-input--with-icon"
+                placeholder="Начало"
+                value={values.timeFrom}
+                onChange={handleTimeFromChange}
+                ref={timeFromRef}
+              />
+              <button type="button" className="ce-icon-button" onClick={() => openPicker(timeFromRef)} aria-label="Выбрать время начала">
+                <IconTime className="ce-input-icon" />
+              </button>
+            </div>
+            <div className="ce-input-wrapper" style={{ flex: 1 }}>
+              <input
+                id="ce-time-to"
+                type="time"
+                className="ce-input ce-input--with-icon"
+                placeholder="Окончание"
+                value={values.timeTo}
+                onChange={handleTimeToChange}
+                min={values.timeFrom || undefined}
+                ref={timeToRef}
+              />
+              <button type="button" className="ce-icon-button" onClick={() => openPicker(timeToRef)} aria-label="Выбрать время окончания">
+                <IconTime className="ce-input-icon" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -26,6 +26,10 @@ function App() {
     );
   };
 
+  const deleteEventLocal = (id) => {
+    setEvents((prev) => prev.filter((ev) => ev.id !== id));
+  };
+
   useEffect(() => {
     if (!isAuthenticated) {
       setEvents([]);
@@ -69,7 +73,7 @@ function App() {
           path="/events/:id"
           element={
             isAuthenticated
-              ? <EventDetailsPage events={events} onUpdateStatus={updateEventStatus} />
+              ? <EventDetailsPage events={events} onUpdateStatus={updateEventStatus} onDeleteEvent={deleteEventLocal} />
               : <Navigate to="/" replace />
           }
         />

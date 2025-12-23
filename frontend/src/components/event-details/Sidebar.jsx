@@ -7,6 +7,7 @@ export default function Sidebar({
   onTabChange,
   status,
   onToggleStatus,
+  onDelete,
 }) {
   const isPublished = status === "published";
 
@@ -94,7 +95,7 @@ export default function Sidebar({
               Редактировать
             </button>
 
-            <button type="button" className="btn btn--delete">
+            <button type="button" className="btn btn--delete" onClick={onDelete}>
               Удалить
             </button>
           </div>

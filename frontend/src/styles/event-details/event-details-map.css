@@ -1,0 +1,109 @@
+/* Read-only map viewer styles */
+.event-details-map-toolbar.read-only {
+	display: flex;
+	align-items: center;
+	font-size: 14px;
+	color: #666;
+	padding: 8px 0;
+}
+
+.event-details-map-status,
+.event-details-map-error,
+.event-details-map-placeholder {
+	margin: 12px 0;
+}
+
+.event-details-map-error {
+	color: #b00020;
+}
+
+.event-details-map-stage {
+	position: relative;
+	display: inline-block;
+	max-width: 100%;
+}
+
+.event-details-map-stage img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+/* Read-only icon marker to match create-event appearance */
+.ed-map-point {
+	position: absolute;
+	transform: translate(-50%, -50%);
+	padding: 0;
+	border: none;
+	background: none;
+	cursor: default;
+}
+
+.ed-map-point-icon {
+	width: 24px;
+	height: 24px;
+	display: block;
+}
+
+/* Popup overlay for point details */
+.ed-map-point-popup-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1100;
+	background: transparent;
+}
+
+.ed-map-point-popup-positioner {
+	position: absolute;
+	z-index: 1101;
+	transform: translate(8px, -50%);
+}
+
+.ed-map-point-popup {
+	width: 260px;
+	padding: 12px 14px 14px;
+	border-radius: 10px;
+	background-color: var(--white);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.ed-map-point-popup-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.ed-map-point-popup-title {
+	font-family: var(--font-heading);
+	font-size: 15px;
+	font-weight: 500;
+	color: var(--black);
+}
+
+.ed-map-point-popup-close {
+	background: transparent;
+	border: 1px solid var(--devider);
+	border-radius: 5px;
+	padding: 2px 8px;
+	font-size: 14px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.ed-map-point-popup-time {
+	margin-top: 8px;
+	font-family: var(--font-text);
+	font-size: 12px;
+	color: var(--txt);
+}
+
+.ed-map-point-popup-text {
+	margin-top: 8px;
+	font-family: var(--font-text);
+	font-size: var(--font-size-text);
+	color: var(--txt);
+}
+
+.ed-map-point-popup-text.muted {
+	color: var(--grey-text, #777);
+}
