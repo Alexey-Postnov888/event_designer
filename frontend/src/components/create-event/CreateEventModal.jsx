@@ -37,10 +37,10 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
     description: "",
   });
 
-  // Карта и точки: храним состояние на уровне модалки, чтобы не терялось при переключении вкладок
   const [mapPreviewUrl, setMapPreviewUrl] = useState(null);
   const [mapFile, setMapFile] = useState(null);
-  const [mapPoints, setMapPoints] = useState([]); // {id, x(0..100), y(0..100), title, timeline_description}
+  const [mapPoints, setMapPoints] = useState([]);
+  const [timelineItems, setTimelineItems] = useState([]);
 
   const renderActiveTab = () => {
     switch (activeTabId) {
@@ -59,14 +59,21 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
             onMapSelected={(file, previewUrl) => {
               setMapFile(file);
               setMapPreviewUrl(previewUrl);
-              // При смене карты сбрасываем точки, чтобы не привязывать их к старой карте
+              
               setMapPoints([]);
             }}
             onPointsChange={setMapPoints}
           />
         );
       case "timeline":
-        return <CreateEventTimelineTab />;
+        return (
+          <CreateEventTimelineTab
+            items={timelineItems}
+            onChange={setTimelineItems}
+            eventTimeFrom={general.timeFrom || undefined}
+            eventTimeTo={general.timeTo || undefined}
+          />
+        );
       case "participants":
         return <CreateEventParticipantsTab />;
       default:
@@ -103,8 +110,6 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
           return;
         }
 
-        // Формируем ISO-строки. Требуем, чтобы конец не был раньше начала
-        // Интерпретируем выбранное время как локальное и конвертируем в UTC
         const startISO = new Date(`${general.date}T${general.timeFrom}:00`).toISOString();
         const endISO = new Date(`${general.date}T${general.timeTo}:00`).toISOString();
 
@@ -153,6 +158,45 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
           }
         } catch (e) {
           console.warn("Не удалось сохранить точки:", e);
+        }
+
+        // Сохраняем таймлайн: создаем точки таймлайна
+        try {
+          if (Array.isArray(timelineItems) && timelineItems.length && createdId) {
+            const { createTimelinePoint } = await import("../../api/points");
+            for (const item of timelineItems) {
+              const desc = (item.description || "").trim();
+              const from = (item.timeFrom || "").trim();
+              if (!desc || !from) continue;
+              const to = (item.timeTo || "").trim();
+
+              // Клампим в границы события
+              const eventStartHHMM = general.timeFrom;
+              const eventEndHHMM = general.timeTo;
+              const startHHMM = from < eventStartHHMM ? eventStartHHMM : from;
+              let endHHMM = (to || from);
+              if (endHHMM > eventEndHHMM) endHHMM = eventEndHHMM;
+              if (endHHMM < startHHMM) endHHMM = startHHMM;
+
+              const start_at = new Date(`${general.date}T${startHHMM}:00`).toISOString();
+              const end_at = new Date(`${general.date}T${endHHMM}:00`).toISOString();
+
+              // Без карты координаты фиксируем в (0,0); title берем из описания (обрезаем)
+              const title = desc.length > 80 ? desc.slice(0, 80) : desc;
+
+              await createTimelinePoint({
+                event_id: createdId,
+                x: 0,
+                y: 0,
+                title,
+                start_at,
+                end_at,
+                timeline_description: desc,
+              });
+            }
+          }
+        } catch (e) {
+          console.warn("Не удалось сохранить таймлайн:", e);
         }
 
         onClose && onClose();

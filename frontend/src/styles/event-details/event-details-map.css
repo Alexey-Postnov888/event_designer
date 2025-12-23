@@ -1,4 +1,3 @@
-/* Read-only map viewer styles */
 .event-details-map-toolbar.read-only {
 	display: flex;
 	align-items: center;
@@ -29,7 +28,6 @@
 	height: auto;
 }
 
-/* Read-only icon marker to match create-event appearance */
 .ed-map-point {
 	position: absolute;
 	transform: translate(-50%, -50%);
@@ -45,7 +43,6 @@
 	display: block;
 }
 
-/* Popup overlay for point details */
 .ed-map-point-popup-overlay {
 	position: fixed;
 	inset: 0;

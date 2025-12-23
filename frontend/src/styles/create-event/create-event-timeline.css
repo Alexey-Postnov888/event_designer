@@ -1,0 +1,162 @@
+.ce-timeline-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* список */
+.ce-timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 892px;
+}
+
+/* строка */
+.ce-timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 892px;
+}
+
+.ce-tl-pill {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  cursor: pointer;
+
+  border: none;
+  padding: 0 20px;
+}
+
+.ce-tl-pill--placeholder {
+  color: var(--txt);
+}
+
+/* описание */
+.ce-tl-desc {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.ce-tl-desc-input {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.ce-tl-desc-ellipsis {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* блок времени */
+.ce-tl-time-edit {
+  width: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.ce-tl-time-input {
+  width: 95px;
+  padding: 0;
+  text-align: center;
+  line-height: 56px;
+
+  color: var(--txt);
+}
+
+.ce-tl-time-input:focus {
+  color: var(--black);
+}
+
+.ce-tl-time-input::-webkit-datetime-edit-hour-field,
+.ce-tl-time-input::-webkit-datetime-edit-minute-field {
+  color: var(--black);
+}
+
+.ce-tl-time-input::-webkit-datetime-edit-text {
+  color: var(--black);
+}
+
+.ce-tl-time-sep {
+  display: inline-block;
+
+  width: 12px;
+  height: 1px;
+
+  background-color: var(--devider);
+  border-radius: 999px;
+
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+
+  margin: 0 6px;
+}
+
+/* УДАЛЕНИЕ */
+.ce-timeline-remove {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  line-height: 0;
+}
+
+.ce-timeline-remove__icon {
+  display: block;
+  width: 19px;
+  height: 24px;
+}
+
+.ce-timeline-remove:hover {
+  opacity: 0.8;
+}
+
+/* + Добавить событие */
+.ce-timeline-add {
+  width: 892px;
+  height: 56px;
+
+  border: 1px solid var(--devider);
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  font-family: var(--font-text);
+  font-size: var(--font-size-text);
+  color: var(--black);
+
+  background: transparent;
+  cursor: pointer;
+}
+
+.ce-timeline-add:hover {
+  border-color: var(--black);
+}
+
+/* SVG плюс в кнопке */
+.ce-timeline-add svg {
+  display: block;
+  width: 16px;
+  height: 23px;
+}

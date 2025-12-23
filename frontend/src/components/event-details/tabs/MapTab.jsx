@@ -3,7 +3,6 @@ import "../../../styles/event-details/event-details-map.css";
 import { getEventMap } from "../../../api/maps";
 import { getPointsByEvent } from "../../../api/points";
 import IconPoint from "../../../assets/icons/icon-point.svg?react";
-// time-related display removed; only title is shown
 
 export default function MapTab({ event }) {
   const [mapUrl, setMapUrl] = useState(null);
@@ -23,7 +22,7 @@ export default function MapTab({ event }) {
     if (!url) return url;
     try {
       const u = new URL(url);
-      // В деве проксируем /static через Vite, поэтому оставим относительный путь
+      
       if (u.pathname && u.pathname.startsWith("/static/")) {
         return u.pathname;
       }
@@ -101,7 +100,7 @@ export default function MapTab({ event }) {
   const renderPopup = () => {
     if (!activePoint) return null;
     const title = toText(activePoint.title) || "Точка";
-    // Позиционируем попап относительно точки внутри карты
+ 
     const leftPct = typeof activePoint.x === "number" ? activePoint.x : Number(activePoint.x) || 0;
     const topPct = typeof activePoint.y === "number" ? activePoint.y : Number(activePoint.y) || 0;
     return (
@@ -115,7 +114,7 @@ export default function MapTab({ event }) {
             <span className="ed-map-point-popup-title">{title}</span>
             <button type="button" className="ed-map-point-popup-close" onClick={closePopup} aria-label="Закрыть">×</button>
           </div>
-          {/* Only title is displayed in popup */}
+      
         </div>
       </div>
     );
@@ -124,7 +123,6 @@ export default function MapTab({ event }) {
   return (
     <section className="event-details-content">
       <div className="event-details-content-card">
-        {/* read-only toolbar removed as requested */}
 
         {loading && <div className="event-details-map-status">Загрузка...</div>}
         {error && !loading && <div className="event-details-map-error">{error}</div>}

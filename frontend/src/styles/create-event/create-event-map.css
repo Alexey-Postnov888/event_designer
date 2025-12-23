@@ -66,7 +66,7 @@
 
 .ce-map-toolbar-btn:disabled {
   cursor: not-allowed;
-  opacity: 1; /* не затемняем */
+  opacity: 1;
 }
 
 .ce-map-hint {
@@ -125,7 +125,6 @@
   display: block;
 }
 
-/* если нужно визуально выделять активную точку */
 .ce-map-point--active .ce-map-point-icon {
   filter: drop-shadow(0 0 6px rgba(255, 221, 45, 0.8));
 }
@@ -224,7 +223,6 @@
 }
 
 /* блок с кнопками */
-/* блок с кнопками */
 .ce-map-point-popup-actions {
   display: flex;
   align-items: center;
@@ -232,7 +230,7 @@
   margin-top: 12px;
 }
 
-/* "Отменить" — просто текст */
+/* Отменить */
 .ce-map-point-popup-cancel {
   background: none;
   border: none;
@@ -245,7 +243,7 @@
   cursor: pointer;
 }
 
-/* "Добавить/Удалить" — контурная кнопка */
+/* Добавить/Удалить */
 .ce-map-point-popup-primary {
   background: transparent;
   border: 1px solid var(--devider);
@@ -259,4 +257,3 @@
 
   cursor: pointer;
 }
-

@@ -26,16 +26,13 @@ export default function MyEventsPage({ events = [], loading, error }) {
     window.location.reload();
   };
 
-  // Открыть модалку создания, если пришли с Header с флагом openCreate
   useEffect(() => {
     if (location?.state && location.state.openCreate) {
       setIsCreateOpen(true);
-      // очищаем флаг в истории, чтобы не повторялся при навигации назад/вперёд
       navigate("/events", { replace: true, state: {} });
     }
   }, [location?.state, navigate]);
 
-  // Фильтрация по названию по параметру ?q= в URL
   const query = useMemo(() => {
     try {
       const params = new URLSearchParams(location.search || "");

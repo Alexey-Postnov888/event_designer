@@ -9,7 +9,6 @@ import { buildEventDateTexts, parseDbDate } from "../../../utils/date";
 function normalize(value) {
   if (value == null) return "";
   if (typeof value === "string") return value;
-  // Обработка SQL null-полей
   if (typeof value === "object") {
     if ("String" in value) return value.String || "";
   }
