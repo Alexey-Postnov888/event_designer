@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/internal/db/migrations:/docker-entrypoint-initdb.d
@@ -16,7 +16,7 @@ services:
     build: ./backend
     container_name: event_designer_app
     ports:
-      - "8080:8080"
+      - "8089:8080"
     environment:
       DB_URL: ${DB_URL}
       JWT_SECRET: ${JWT_SECRET}
@@ -31,7 +31,7 @@ services:
         VITE_API_BASE: /api
     container_name: event_designer_frontend
     ports:
-      - "5173:80"   # change to 80:80 on server if needed
+      - "5173:80"
     depends_on:
       - app
     restart: unless-stopped
