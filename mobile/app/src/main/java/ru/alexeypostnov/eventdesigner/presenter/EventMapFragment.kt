@@ -2,6 +2,7 @@ package ru.alexeypostnov.eventdesigner.presenter
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -71,7 +72,7 @@ class EventMapFragment: Fragment(R.layout.fragment_event_map) {
     private fun loadEventMap(mapUrl: String) {
         val devMapUrl = mapUrl.replace(
             "http://localhost:8080",
-            "https://eventdesigner.alexeypostnov.ru"
+            "https://eventdesigner.alexeypostnov.ru/api"
         )
 
         binding.mapView.load(devMapUrl) {

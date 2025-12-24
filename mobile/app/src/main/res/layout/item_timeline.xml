@@ -26,10 +26,11 @@
             android:id="@+id/timeline_item_time_separator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="-"
+            android:text="•"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toEndOf="@id/timeline_item_start_time"
             android:layout_marginStart="5dp"
+            android:textAlignment="center"
             android:textColor="@color/black"/>
 
         <TextView

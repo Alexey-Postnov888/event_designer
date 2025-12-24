@@ -55,7 +55,7 @@ object NetworkModule {
         okHttpClient: OkHttpClient
     ): EventInfoService {
         return Retrofit.Builder()
-            .baseUrl("https://eventdesigner.alexeypostnov.ru/")
+            .baseUrl("https://eventdesigner.alexeypostnov.ru/api/")
             .client(okHttpClient)
             .addConverterFactory(
                 Json.asConverterFactory("application/json".toMediaType())
