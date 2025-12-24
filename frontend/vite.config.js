@@ -9,15 +9,19 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), svgr()],
     server: {
+      // при работе с удалённым HTTPS-бэкендом можно отключить проверку сертификата,
+      // если он самоподписанный или с нестандартной цепочкой
       proxy: {
         "/api": {
           target: proxyTarget,
           changeOrigin: true,
+          secure: false,
           rewrite: (path) => path.replace(/^\/api/, ""),
         },
         "/static": {
           target: proxyTarget,
           changeOrigin: true,
+          secure: false,
         },
       },
     },

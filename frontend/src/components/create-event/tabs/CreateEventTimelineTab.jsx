@@ -125,7 +125,6 @@ export default function CreateEventTimelineTab({ items: itemsProp = [], onChange
     return () => cancelAnimationFrame(raf);
   }, [shouldOpenPicker, activeEditId]);
 
-  // Клампим существующие значения при смене границ события
   useEffect(() => {
     setItems((prev) => prev.map((x) => {
       const from = x.timeFrom ? clampWithin(x.timeFrom, eventTimeFrom, eventTimeTo) : x.timeFrom;
@@ -133,7 +132,7 @@ export default function CreateEventTimelineTab({ items: itemsProp = [], onChange
       if (to && from && to < from) to = from;
       return { ...x, timeFrom: from, timeTo: to };
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [eventTimeFrom, eventTimeTo]);
 
   return (
@@ -192,7 +191,7 @@ export default function CreateEventTimelineTab({ items: itemsProp = [], onChange
                 type="text"
                 className="ce-input ce-tl-desc-input"
                 placeholder="Описание"
-                value={item.description}
+                value={typeof item.description === "string" ? item.description : ""}
                 onChange={(e) => updateItem(item.id, { description: e.target.value })}
                 onBlur={() => commitIfFilled(item.id)}
                 onClick={(e) => e.stopPropagation()}
@@ -213,7 +212,7 @@ export default function CreateEventTimelineTab({ items: itemsProp = [], onChange
                 }}
               >
                 <span className="ce-tl-desc-ellipsis">
-                  {item.description?.trim() || "Описание"}
+                  {(typeof item.description === "string" && item.description.trim()) || "Описание"}
                 </span>
               </button>
             )}

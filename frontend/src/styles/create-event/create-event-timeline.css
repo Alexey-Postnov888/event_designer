@@ -31,7 +31,7 @@
 }
 
 .ce-tl-pill--placeholder {
-  color: var(--txt);
+  color: var(--black);
 }
 
 /* описание */
@@ -47,6 +47,7 @@
   min-width: 0;
   text-align: left;
   width: 100%;
+  color: var(--black);
 }
 
 .ce-tl-desc-ellipsis {
@@ -72,7 +73,7 @@
   text-align: center;
   line-height: 56px;
 
-  color: var(--txt);
+  color: var(--black);
 }
 
 .ce-tl-time-input:focus {
@@ -154,7 +155,6 @@
   border-color: var(--black);
 }
 
-/* SVG плюс в кнопке */
 .ce-timeline-add svg {
   display: block;
   width: 16px;

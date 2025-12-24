@@ -4,7 +4,7 @@ import { getEventMap } from "../../../api/maps";
 import { getPointsByEvent } from "../../../api/points";
 import IconPoint from "../../../assets/icons/icon-point.svg?react";
 
-export default function MapTab({ event }) {
+export default function MapTab({ event, refreshKey = 0 }) {
   const [mapUrl, setMapUrl] = useState(null);
   const [points, setPoints] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,8 +14,19 @@ export default function MapTab({ event }) {
   const [activePoint, setActivePoint] = useState(null);
   const toText = (v) => {
     if (v == null) return "";
-    if (typeof v === "object" && v && "String" in v) return v.String || "";
-    return String(v);
+    const t = typeof v;
+    if (t === "string" || t === "number" || t === "boolean") return String(v);
+    if (t === "object") {
+      const hasValid = Object.prototype.hasOwnProperty.call(v, "Valid") ? Boolean(v.Valid) : undefined;
+      if (Object.prototype.hasOwnProperty.call(v, "String")) {
+        return hasValid === false ? "" : (v.String || "");
+      }
+      if (Object.prototype.hasOwnProperty.call(v, "Time")) {
+        return hasValid === false ? "" : (typeof v.Time === "string" ? v.Time : "");
+      }
+      return "";
+    }
+    return "";
   };
 
   const normalizeMapUrl = (url) => {
@@ -44,7 +55,15 @@ export default function MapTab({ event }) {
         ]);
         if (cancelled) return;
         setMapUrl(normalizeMapUrl(mapRes?.map_url || null));
-        setPoints(Array.isArray(pointsRes) ? pointsRes : []);
+        const simpleOnly = Array.isArray(pointsRes)
+          ? pointsRes.filter((p) => {
+              const desc = toText(p.timeline_description).trim();
+              const s = toText(p.start_at).trim();
+              const e = toText(p.end_at).trim();
+              return !(desc || s || e);
+            })
+          : [];
+        setPoints(simpleOnly);
       } catch (e) {
         const msg = String(e?.message || "");
         if (msg.includes("404") || msg.toLowerCase().includes("not found")) {
@@ -59,7 +78,7 @@ export default function MapTab({ event }) {
       }
     })();
     return () => { cancelled = true; };
-  }, [event.id]);
+  }, [event.id, refreshKey]);
 
   const onImageLoad = () => {
     const img = imgRef.current;

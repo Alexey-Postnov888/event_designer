@@ -78,14 +78,21 @@ export default function MyEventsPage({ events = [], loading, error }) {
       ) : null}
 
       <div className="events-grid">
-        {Array.isArray(filteredEvents) && filteredEvents.map((event) => (
-          <EventCard
-            key={event.id}
-            title={event.name || event.title}
-            status={event.status || "published"}
-            onClick={() => navigate(`/events/${event.id}`)}
-          />
-        ))}
+        {Array.isArray(filteredEvents) && filteredEvents.map((event) => {
+          let cover = null;
+          try {
+            cover = localStorage.getItem(`event_cover:${event.id}`);
+          } catch {}
+          return (
+            <EventCard
+              key={event.id}
+              title={event.name || event.title}
+              status={event.status || "published"}
+              imageUrl={cover || null}
+              onClick={() => navigate(`/events/${event.id}`)}
+            />
+          );
+        })}
       </div>
           
       <CreateEventModal

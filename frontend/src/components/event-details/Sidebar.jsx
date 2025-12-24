@@ -8,6 +8,7 @@ export default function Sidebar({
   status,
   onToggleStatus,
   onDelete,
+  onEdit,
 }) {
   const isPublished = status === "published";
 
@@ -91,7 +92,7 @@ export default function Sidebar({
         {/* Кнопки */}
         <div className="event-details-sidebar-footer">
           <div className="event-details-sidebar-actions">
-            <button type="button" className="btn btn--edit">
+            <button type="button" className="btn btn--edit" onClick={onEdit}>
               Редактировать
             </button>
 

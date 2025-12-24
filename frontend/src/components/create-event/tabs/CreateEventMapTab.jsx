@@ -9,8 +9,45 @@ import IconPoint from "../../../assets/icons/icon-point.svg?react";
 
 
 export default function CreateEventMapTab({ mapPreviewUrl, points: pointsProp = [], onMapSelected, onPointsChange }) {
-  const [imageUrl, setImageUrl] = useState(mapPreviewUrl || null);
-  const [points, setPoints] = useState(pointsProp || []);
+  const normalizeMapUrl = (url) => {
+    if (!url) return url;
+    try {
+      const u = new URL(url, window.location.origin);
+      if (u.pathname && u.pathname.startsWith("/static/")) {
+        return u.pathname;
+      }
+      return url;
+    } catch {
+      return url;
+    }
+  };
+
+  const [imageUrl, setImageUrl] = useState(mapPreviewUrl ? normalizeMapUrl(mapPreviewUrl) : null);
+  const toText = (v) => {
+    if (v == null) return "";
+    const t = typeof v;
+    if (t === "string" || t === "number" || t === "boolean") return String(v);
+    if (t === "object") {
+      const hasValid = Object.prototype.hasOwnProperty.call(v, "Valid") ? Boolean(v.Valid) : undefined;
+      if (Object.prototype.hasOwnProperty.call(v, "String")) {
+        return hasValid === false ? "" : (v.String || "");
+      }
+      if (Object.prototype.hasOwnProperty.call(v, "Time")) {
+        return hasValid === false ? "" : (typeof v.Time === "string" ? v.Time : "");
+      }
+      return "";
+    }
+    return "";
+  };
+  const filterSimplePoints = (arr) => Array.isArray(arr)
+    ? arr.filter((p) => {
+        const desc = toText(p?.timeline_description).trim();
+        const s = toText(p?.start_at).trim();
+        const e = toText(p?.end_at).trim();
+        return !(desc || s || e);
+      })
+    : [];
+  const [points, setPoints] = useState(filterSimplePoints(pointsProp));
   const [isAddingPoint, setIsAddingPoint] = useState(false);
 
   const imgRef = useRef(null);
@@ -36,11 +73,24 @@ export default function CreateEventMapTab({ mapPreviewUrl, points: pointsProp = 
     setDraftTitle("");
     setPopupPosition(null);
 
-    // Сообщаем родителю о выбранной карте
     try {
       onMapSelected && onMapSelected(file, url);
     } catch {}
   };
+
+  useEffect(() => {
+    if (mapPreviewUrl) {
+      const next = normalizeMapUrl(mapPreviewUrl);
+      if (next !== imageUrl) setImageUrl(next);
+    }
+
+  }, [mapPreviewUrl]);
+
+  // Синхронизация точек
+  useEffect(() => {
+    const next = filterSimplePoints(pointsProp);
+    if (next.length !== points.length) setPoints(next);
+  }, [pointsProp]);
 
   const handleStartAddPoint = () => {
     if (!imageUrl) return;
@@ -57,7 +107,7 @@ export default function CreateEventMapTab({ mapPreviewUrl, points: pointsProp = 
     const canvas = canvasRef.current;
     if (!img || !canvas) return;
     const imgRect = img.getBoundingClientRect();
-    // Игнорируем клики вне самой картинки (по серым полям)
+
     if (
       event.clientX < imgRect.left ||
       event.clientX > imgRect.right ||
@@ -124,7 +174,6 @@ export default function CreateEventMapTab({ mapPreviewUrl, points: pointsProp = 
     if (activePointId) {
       const point = points.find((p) => p.id === activePointId);
 
-      // Удаление пустой точки
       if (point && (point.title || "").trim() === "") {
         setPoints((prev) => prev.filter((p) => p.id !== activePointId));
       }
@@ -227,18 +276,6 @@ export default function CreateEventMapTab({ mapPreviewUrl, points: pointsProp = 
         )
       : null;
 
-  // При изменении пропсов восстанавливаем локальное состояние (при переключении вкладок)
-  // Это позволяет не терять карту/точки
-  // И избегаем бесконечного цикла: обновляем только когда значения реально отличаются
-  if (mapPreviewUrl && mapPreviewUrl !== imageUrl) {
-    setImageUrl(mapPreviewUrl);
-  }
-  if (Array.isArray(pointsProp) && pointsProp !== points) {
-    // Простая сверка по длине
-    if (pointsProp.length !== points.length) setPoints(pointsProp);
-  }
-
-  // Обновляем позицию и размер оверлея под фактический прямоугольник изображения
   const updateOverlay = () => {
     const img = imgRef.current;
     const canvas = canvasRef.current;
@@ -258,7 +295,7 @@ export default function CreateEventMapTab({ mapPreviewUrl, points: pointsProp = 
     const onResize = () => updateOverlay();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [imageUrl]);
 
   return (
@@ -330,9 +367,12 @@ export default function CreateEventMapTab({ mapPreviewUrl, points: pointsProp = 
               alt="Карта мероприятия"
               className="ce-map-image"
               ref={imgRef}
+              crossOrigin="anonymous"
               onLoad={updateOverlay}
+              onError={() => {
+                setImageUrl(null);
+              }}
             />
-            {/* Оверлей ровно по области изображения */}
             <div
               style={{
                 position: "absolute",

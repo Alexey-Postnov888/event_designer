@@ -1,7 +1,6 @@
 import IconTime from "../../../assets/icons/icon-time.svg?react";
 import IconCalendar from "../../../assets/icons/icon-calendar.svg?react";
 import IconLocation from "../../../assets/icons/icon-location.svg?react";
-import IconDownload from "../../../assets/icons/icon-download.svg?react";
 
 import "../../../styles/event-details/event-details-overview.css";
 import { buildEventDateTexts, parseDbDate } from "../../../utils/date";
@@ -62,10 +61,6 @@ export default function OverviewTab({ event }) {
           )}
         </div>
 
-        <button className="btn event-details-download-btn">
-          <IconDownload className="event-details-download-icon" />
-          Скачать мероприятие для офлайн-просмотра
-        </button>
       </div>
     </section>
   );

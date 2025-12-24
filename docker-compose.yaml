@@ -24,5 +24,17 @@ services:
       - db
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE: /api
+    container_name: event_designer_frontend
+    ports:
+      - "5173:80"   # change to 80:80 on server if needed
+    depends_on:
+      - app
+    restart: unless-stopped
+
 volumes:
   postgres_data:

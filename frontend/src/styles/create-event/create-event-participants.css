@@ -1,0 +1,8 @@
+/* Отступ между кнопкой "Добавить участника" и списком/полем ввода */
+.ce-participants-tab .ce-timeline-add {
+    margin-top: 20px;
+}
+
+.ce-participants-tab{
+    gap: 20px;
+}

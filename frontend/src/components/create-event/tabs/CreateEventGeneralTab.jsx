@@ -1,14 +1,16 @@
 import IconCalendar from "../../../assets/icons/icon-calendar-create.svg?react";
 import IconTime from "../../../assets/icons/icon-time-create.svg?react";
+import IconDownload2 from "../../../assets/icons/icon-download2.svg?react";
 import { useRef } from "react";
 
 import "../../../styles/create-event/create-event-general.css";
 
-export default function CreateEventGeneralTab({ values, onChange }) {
+export default function CreateEventGeneralTab({ values, onChange, coverPreviewUrl, onCoverSelected }) {
   const setField = (key) => (e) => onChange({ ...values, [key]: e.target.value });
   const dateRef = useRef(null);
   const timeFromRef = useRef(null);
   const timeToRef = useRef(null);
+  const coverInputRef = useRef(null);
 
   const openPicker = (ref) => {
     const el = ref?.current;
@@ -32,7 +34,7 @@ export default function CreateEventGeneralTab({ values, onChange }) {
     if (!hhmm) return "";
     const [hStr = "0", mStr = "0"] = hhmm.split(":");
     let total = (parseInt(hStr, 10) || 0) * 60 + (parseInt(mStr, 10) || 0) + hoursToAdd * 60;
-    // Клапаем в пределах суток; если уходит за 24:00 — ограничим 23:59
+    // в пределах суток, если уходит за 24:00 — ограничим 23:59
     total = Math.min(total, 23 * 60 + 59);
     total = Math.max(total, 0);
     const h = Math.floor(total / 60);
@@ -61,6 +63,17 @@ export default function CreateEventGeneralTab({ values, onChange }) {
       newTo = from; // не позволяем окончанию быть раньше начала
     }
     onChange({ ...values, timeTo: newTo });
+  };
+
+  const handleCoverClick = () => {
+    coverInputRef.current?.click();
+  };
+
+  const handleCoverChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && typeof onCoverSelected === "function") {
+      onCoverSelected(file);
+    }
   };
   return (
     <form className="ce-general-form">
@@ -171,6 +184,27 @@ export default function CreateEventGeneralTab({ values, onChange }) {
           value={values.description}
           onChange={setField("description")}
         />
+      </div>
+
+      {/* Обложка карточки */}
+      <div className="ce-field">
+        <label className="ce-label" htmlFor="ce-cover">
+          Обложка
+        </label>
+        <div className="ce-cover">
+          <div className="ce-cover-preview">
+            {coverPreviewUrl ? (
+              <img src={coverPreviewUrl} alt="Обложка" className="ce-cover-img" />
+            ) : (
+              <span className="ce-cover-placeholder">Нет обложки</span>
+            )}
+          </div>
+          <button type="button" className="btn ce-cover-btn" onClick={handleCoverClick}>
+            <IconDownload2 className="ce-cover-btn__icon" />
+            Загрузить обложку
+          </button>
+          <input ref={coverInputRef} id="ce-cover" type="file" accept="image/*" style={{ display: "none" }} onChange={handleCoverChange} />
+        </div>
       </div>
     </form>
   );

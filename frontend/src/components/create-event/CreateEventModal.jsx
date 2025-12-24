@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createEvent } from "../../api/events";
 import { getToken } from "../../api/client";
 import Modal from "../ui/Modal";
@@ -20,15 +20,30 @@ const TABS = [
   { id: "participants", label: "Участники" },
 ];
 
-export default function CreateEventModal({ isOpen, onClose, onCreated }) {
+export default function CreateEventModal({
+  isOpen,
+  onClose,
+  onCreated,
+  mode = "create",
+  eventId,
+  initialActiveTabId,
+  initialGeneral,
+  initialMapPreviewUrl,
+  initialMapPoints,
+  initialTimelineItems,
+  initialParticipants,
+}) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [maxVisitedIndex, setMaxVisitedIndex] = useState(0);
 
+  const initialTabIndex = initialActiveTabId
+    ? Math.max(0, TABS.findIndex((t) => t.id === initialActiveTabId))
+    : 0;
   const activeTabId = TABS[activeIndex].id;
 
   // Общая информация
-  const [general, setGeneral] = useState({
+  const [general, setGeneral] = useState(() => initialGeneral || {
     name: "",
     address: "",
     date: "",
@@ -37,10 +52,35 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
     description: "",
   });
 
-  const [mapPreviewUrl, setMapPreviewUrl] = useState(null);
+  const [mapPreviewUrl, setMapPreviewUrl] = useState(initialMapPreviewUrl || null);
   const [mapFile, setMapFile] = useState(null);
-  const [mapPoints, setMapPoints] = useState([]);
-  const [timelineItems, setTimelineItems] = useState([]);
+  const [mapPoints, setMapPoints] = useState(() => Array.isArray(initialMapPoints) ? initialMapPoints : []);
+  const [timelineItems, setTimelineItems] = useState(() => Array.isArray(initialTimelineItems) ? initialTimelineItems : []);
+  const [participants, setParticipants] = useState(() => Array.isArray(initialParticipants) ? initialParticipants : []);
+  // Обложка (картинка для карточки событий)
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState(null);
+  const [coverDataUrl, setCoverDataUrl] = useState(null);
+
+  useEffect(() => {
+    if (mode === "edit" && eventId) {
+      try {
+        const cached = localStorage.getItem(`event_cover:${eventId}`);
+        if (cached) {
+          setCoverPreviewUrl(cached);
+          setCoverDataUrl(cached);
+        }
+      } catch {}
+    }
+  }, [mode, eventId]);
+
+  useEffect(() => {
+    try {
+      if (typeof initialTabIndex === "number" && initialTabIndex >= 0) {
+        setActiveIndex(initialTabIndex);
+        setMaxVisitedIndex(TABS.length - 1);
+      }
+    } catch {}
+  }, [initialTabIndex]);
 
   const renderActiveTab = () => {
     switch (activeTabId) {
@@ -49,6 +89,45 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
           <CreateEventGeneralTab
             values={general}
             onChange={setGeneral}
+            coverPreviewUrl={coverPreviewUrl}
+            onCoverSelected={async (file) => {
+              if (!file) return;
+              try {
+                const blobUrl = URL.createObjectURL(file);
+                const img = new Image();
+                const MAX_W = 800;
+                const MAX_H = 600;
+                img.onload = () => {
+                  try {
+                    const { width, height } = img;
+                    let w = width;
+                    let h = height;
+                    const ratio = width / height;
+                    if (w > MAX_W) {
+                      w = MAX_W;
+                      h = Math.round(w / ratio);
+                    }
+                    if (h > MAX_H) {
+                      h = MAX_H;
+                      w = Math.round(h * ratio);
+                    }
+                    const canvas = document.createElement("canvas");
+                    canvas.width = Math.max(1, w);
+                    canvas.height = Math.max(1, h);
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+                    setCoverPreviewUrl(dataUrl);
+                    setCoverDataUrl(dataUrl);
+                  } catch {}
+                  URL.revokeObjectURL(blobUrl);
+                };
+                img.onerror = () => {
+                  URL.revokeObjectURL(blobUrl);
+                };
+                img.src = blobUrl;
+              } catch {}
+            }}
           />
         );
       case "map":
@@ -75,7 +154,12 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
           />
         );
       case "participants":
-        return <CreateEventParticipantsTab />;
+        return (
+          <CreateEventParticipantsTab
+            items={participants}
+            onChange={setParticipants}
+          />
+        );
       default:
         return null;
     }
@@ -126,10 +210,26 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
           ends_at: endISO,
         };
 
-        const resp = await createEvent(payload);
-        const createdId = resp?.id || resp?.ID || resp?.event_id;
+        let createdId = eventId;
+        if (mode === "create") {
+          const resp = await createEvent(payload);
+          createdId = resp?.id || resp?.ID || resp?.event_id;
+        } else {
+          try {
+            const { updateEvent } = await import("../../api/events");
+            await updateEvent({
+              event_id: createdId,
+              name: general.name,
+              address: general.address,
+              description: general.description || undefined,
+              starts_at: startISO,
+              ends_at: endISO,
+            });
+          } catch (e) {
+            console.warn("Не удалось обновить общую информацию:", e);
+          }
+        }
 
-        // После создания события — загружаем карту (если выбрана)
         try {
           if (mapFile && createdId) {
             const { uploadEventMap } = await import("../../api/maps");
@@ -139,25 +239,34 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
           console.warn("Не удалось загрузить карту:", e);
         }
 
-        // Сохраняем точки: только простые точки (только заголовок, X/Y)
         try {
-          if (Array.isArray(mapPoints) && mapPoints.length && createdId) {
-            const { createSimplePoint } = await import("../../api/points");
-            for (const p of mapPoints) {
-              const title = (p.title || "").trim();
-              if (!title) continue;
-              const x = Math.round(p.x ?? 0);
-              const y = Math.round(p.y ?? 0);
-              await createSimplePoint({
-                event_id: createdId,
-                x,
-                y,
-                title,
-              });
+          if (createdId) {
+            const { getPointsByEvent } = await import("../../api/points");
+            const existing = await getPointsByEvent(createdId).catch(() => []);
+            if (Array.isArray(existing)) {
+              for (const p of existing) {
+                try {
+                  const { apiFetch } = await import("../../api/client");
+                  await apiFetch(`/admin/events/${createdId}/points/${p.id}`, { method: "DELETE" });
+                } catch (err) {
+                  console.warn("Не удалось удалить точку:", p.id, err);
+                }
+              }
+            }
+
+            if (Array.isArray(mapPoints) && mapPoints.length) {
+              const { createSimplePoint } = await import("../../api/points");
+              for (const p of mapPoints) {
+                const title = (p.title || "").trim();
+                if (!title) continue;
+                const x = Math.round(p.x ?? 0);
+                const y = Math.round(p.y ?? 0);
+                await createSimplePoint({ event_id: createdId, x, y, title });
+              }
             }
           }
         } catch (e) {
-          console.warn("Не удалось сохранить точки:", e);
+          console.warn("Не удалось пересохранить простые точки:", e);
         }
 
         // Сохраняем таймлайн: создаем точки таймлайна
@@ -170,7 +279,6 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
               if (!desc || !from) continue;
               const to = (item.timeTo || "").trim();
 
-              // Клампим в границы события
               const eventStartHHMM = general.timeFrom;
               const eventEndHHMM = general.timeTo;
               const startHHMM = from < eventStartHHMM ? eventStartHHMM : from;
@@ -181,7 +289,6 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
               const start_at = new Date(`${general.date}T${startHHMM}:00`).toISOString();
               const end_at = new Date(`${general.date}T${endHHMM}:00`).toISOString();
 
-              // Без карты координаты фиксируем в (0,0); title берем из описания (обрезаем)
               const title = desc.length > 80 ? desc.slice(0, 80) : desc;
 
               await createTimelinePoint({
@@ -197,6 +304,54 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
           }
         } catch (e) {
           console.warn("Не удалось сохранить таймлайн:", e);
+        }
+
+        // Сохраняем участников
+        try {
+          if (Array.isArray(participants) && createdId) {
+            const { addAllowedEmail, removeAllowedEmail } = await import("../../api/participants");
+
+            const newEmails = [];
+            for (const item of participants) {
+              const email = (item?.email || "").trim().toLowerCase();
+              if (!email) continue;
+              newEmails.push(email);
+            }
+
+            if (mode === "edit") {
+              try {
+                const prevRaw = localStorage.getItem(`allowed_emails:${createdId}`);
+                const prev = prevRaw ? JSON.parse(prevRaw) : [];
+                const prevSet = new Set(Array.isArray(prev) ? prev.map((e) => String(e).toLowerCase()) : []);
+                const newSet = new Set(newEmails);
+                for (const oldEmail of prevSet) {
+                  if (!newSet.has(oldEmail)) {
+                    try { await removeAllowedEmail(createdId, oldEmail); } catch (err) {
+                      console.warn("Не удалось удалить участника:", oldEmail, err);
+                    }
+                  }
+                }
+              } catch {}
+            }
+
+            for (const email of new Set(newEmails)) {
+              try { await addAllowedEmail(createdId, email); } catch (err) {
+                console.warn("Не удалось добавить участника:", email, err);
+              }
+            }
+
+            try { localStorage.setItem(`allowed_emails:${createdId}`, JSON.stringify([...new Set(newEmails)].sort())); } catch {}
+          }
+        } catch (e) {
+          console.warn("Не удалось сохранить участников:", e);
+        }
+
+        try {
+          if (coverDataUrl && createdId) {
+            localStorage.setItem(`event_cover:${createdId}`, coverDataUrl);
+          }
+        } catch (e) {
+          console.warn("Не удалось сохранить обложку:", e);
         }
 
         onClose && onClose();
@@ -219,7 +374,7 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
       <div className="create-event-modal">
         {/* Заголовок */}
         <div className="create-event-header">
-          <h2 className="create-event-title">Новое мероприятие</h2>
+          <h2 className="create-event-title">{mode === "edit" ? "Редактирование мероприятия" : "Новое мероприятие"}</h2>
 
           <button
             type="button"
@@ -272,7 +427,7 @@ export default function CreateEventModal({ isOpen, onClose, onCreated }) {
             className="btn btn-primary create-event-next-btn"
             onClick={handleNext}
           >
-            {isLastStep ? "Сохранить" : "Далее"}
+            {isLastStep ? (mode === "edit" ? "Сохранить изменения" : "Сохранить") : "Далее"}
           </button>
         </div>
       </div>
